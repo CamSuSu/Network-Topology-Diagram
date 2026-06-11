@@ -436,6 +436,8 @@ html,body{width:100%;height:100%;font-family:var(--fn);background:var(--bg0);col
 @keyframes pulse-node{0%,100%{opacity:0.35}50%{opacity:0.75}}
 @keyframes slideIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -498,6 +500,7 @@ html,body{width:100%;height:100%;font-family:var(--fn);background:var(--bg0);col
     <button class="tbtn" onclick="autoLayout()"><span>⊹</span><span class="tip">自動排列 <span class="kbd">L</span></span></button>
     <button class="tbtn" onclick="fitView()"><span>⤢</span><span class="tip">適應視窗 <span class="kbd">F</span></span></button>
     <button class="tbtn" onclick="toggleGrid(this)"><span>⊟</span><span class="tip">切換網格 <span class="kbd">G</span></span></button>
+    <button class="tbtn" onclick="toggleSnap(this)" id="btn-snap"><span>🧲</span><span class="tip">磁吸對齊網格</span></button>
     <button class="tbtn" onclick="addZoneFromBtn()"><span>🏷</span><span class="tip">新增區域框</span></button>
     <button class="tbtn" onclick="openTemplateModal()"><span>📋</span><span class="tbtn-label">範本</span><span class="tip">插入預設範本</span></button>
     <button class="tbtn" onclick="confirmClear()"><span>🗑</span><span class="tip">清空畫布</span></button>
@@ -540,6 +543,13 @@ html,body{width:100%;height:100%;font-family:var(--fn);background:var(--bg0);col
       <div class="sb-section-title">連線類型</div>
       <div class="conn-list" id="conn-list"></div>
       <div class="sb-section-title" style="margin-top:8px">快速設定</div>
+      <div class="pg">
+        <span class="pl">佈線風格</span>
+        <select class="ps" id="conn-route-sel" onchange="S.defaultRoute = this.value">
+          <option value="curve">貝茲曲線 (標準)</option>
+          <option value="ortho">直角佈線 (Visio風格)</option>
+        </select>
+      </div>
       <div class="pg">
         <span class="pl">連線標籤</span>
         <input class="pi" id="conn-label-input" type="text" placeholder="1Gbps / VLAN10 …">
@@ -736,6 +746,15 @@ html,body{width:100%;height:100%;font-family:var(--fn);background:var(--bg0);col
     <h2>匯出 / 儲存</h2>
     <p class="sub">選擇匯出格式或儲存至本機</p>
     <div style="display:flex;flex-direction:column;gap:7px">
+      <button class="btn-ghost" style="padding:11px;text-align:left;border-color:var(--purple)" onclick="doExportPDF()">
+        <div style="font-size:12px;font-weight:600;color:var(--purple)">📄 產出稽核 PDF (A4 橫式)</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:2px">自動排版、壓浮水印與時間，適合官方稽核文件</div>
+      </button>
+      <button class="btn-ghost" style="padding:11px;text-align:left;border-color:var(--green)" onclick="doExportCSV()">
+        <div style="font-size:12px;font-weight:600;color:var(--green)">📊 匯出設備清單 (BOM CSV)</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:2px">匯出所有節點的 IP、VLAN、狀態等資訊，供 Excel 使用</div>
+      </button>
+      <hr style="border:0;border-top:1px solid var(--border);margin:4px 0">
       <button class="btn-ghost" style="padding:11px;text-align:left" onclick="doExport('save')">
         <div style="font-size:12px;font-weight:600;color:var(--t1)">💾 儲存專案 (.ntp)</div>
         <div style="font-size:10px;color:var(--t3);margin-top:2px">儲存目前拓樸圖至本機檔案，可隨時重新開啟</div>
@@ -1483,6 +1502,8 @@ let S = {
   selIds:[],
   tool:'select',
   connType:'eth',
+  snapToGrid: false,
+  defaultRoute: 'curve',
   zoom:1, pan:{x:60,y:40},
   drag:null,
   panning:false,
@@ -1787,6 +1808,7 @@ function getDevDef(type){
 }
 
 function addNode(type,x,y){
+  if(S.snapToGrid) { x = Math.round(x/20)*20; y = Math.round(y/20)*20; }
   const def=getDevDef(type);
   S.nc++;
   const node={
@@ -1859,7 +1881,8 @@ function addConn(fromId,toId){
   S.conns.push({
     id:'c'+Date.now(),from:fromId,to:toId,
     type:S.connType,label,bw,
-    color:ct.col,dash:ct.dash,arrow:arrowEnd,arrowStart
+    color:ct.col,dash:ct.dash,arrow:arrowEnd,arrowStart,
+    route: S.defaultRoute || 'curve'
   });
   renderAll();notify('⌇','已建立連線');markDirty();
 }
@@ -1996,9 +2019,15 @@ function renderConns(){
     const fx=fn.x+fn.w/2,fy=fn.y+fn.h/2;
     const tx2=tn.x+tn.w/2,ty2=tn.y+tn.h/2;
     const dx=tx2-fx,dy=ty2-fy;
-    const cpx1=fx+dx*0.45,cpy1=fy;
-    const cpx2=tx2-dx*0.45,cpy2=ty2;
-    const dStr=`M${fx},${fy} C${cpx1},${cpy1} ${cpx2},${cpy2} ${tx2},${ty2}`;
+    let dStr = '';
+    if (c.route === 'ortho') {
+      const midY = (fy + ty2) / 2;
+      dStr = `M${fx},${fy} L${fx},${midY} L${tx2},${midY} L${tx2},${ty2}`;
+    } else {
+      const cpx1=fx+dx*0.45,cpy1=fy;
+      const cpx2=tx2-dx*0.45,cpy2=ty2;
+      dStr = `M${fx},${fy} C${cpx1},${cpy1} ${cpx2},${cpy2} ${tx2},${ty2}`;
+    }
     const ct=CONN_TYPES.find(x=>x.id===c.type)||CONN_TYPES[0];
     // Glow
     const gp=mkSVG('path');
@@ -2362,8 +2391,12 @@ function onNodeMouseDown(ev,id){
     const move=(mev)=>{
       const p=svgPt(mev);const node=getNode(id);
       if(node&&S.drag&&S.drag.nodeId===id){
-        const dx=p.x-S.drag.ox-node.x,dy=p.y-S.drag.oy-node.y;
-        node.x=Math.round((p.x-S.drag.ox)/10)*10;node.y=Math.round((p.y-S.drag.oy)/10)*10;
+        let nx = p.x - S.drag.ox;
+        let ny = p.y - S.drag.oy;
+        if(S.snapToGrid) { nx = Math.round(nx/20)*20; ny = Math.round(ny/20)*20; }
+        else { nx = Math.round(nx/10)*10; ny = Math.round(ny/10)*10; }
+        const dx = nx - node.x, dy = ny - node.y;
+        node.x = nx; node.y = ny;
         // Move all selected nodes together
         if(S.selIds.length>1){
           S.selIds.filter(sid=>sid!==id).forEach(sid=>{
@@ -3585,6 +3618,84 @@ document.getElementById('proj-name').addEventListener('change',e=>{
   const p=S.projects.find(x=>x.id===S.activeProj);
   if(p)p.name=e.target.value;updateProjList();markDirty();
 });
+// ═══════════════════════════════════════════════════════════════
+//  稽核級升級功能 (PDF 匯出、CSV 清單、網格磁吸)
+// ═══════════════════════════════════════════════════════════════
+
+function toggleSnap(btn) {
+  S.snapToGrid = !S.snapToGrid;
+  btn.classList.toggle('act', S.snapToGrid);
+  notify('🧲', S.snapToGrid ? '網格磁吸對齊已開啟' : '網格磁吸對齊已關閉');
+}
+
+async function doExportPDF() {
+  closeModal('mo-export');
+  notify('⏳', '正在生成高解析度 PDF...');
+  
+  const cw = document.getElementById('cw');
+  const oldGrid = S.showGrid;
+  if(oldGrid) toggleGrid(); // 隱藏網格以求版面乾淨
+
+  setTimeout(async () => {
+    try {
+      // 擷取畫布 (放大 2 倍確保清晰)
+      const canvas = await html2canvas(cw, { scale: 2, backgroundColor: '#04090f', useCORS: true });
+      const imgData = canvas.toDataURL('image/png');
+      
+      // 建立 A4 橫式 PDF
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+      const pdfW = pdf.internal.pageSize.getWidth();
+      const pdfH = pdf.internal.pageSize.getHeight();
+      
+      // 計算等比例縮放以置中
+      const imgProps = pdf.getImageProperties(imgData);
+      const margin = 10;
+      const calcW = pdfW - (margin*2);
+      const calcH = (imgProps.height * calcW) / imgProps.width;
+      
+      pdf.addImage(imgData, 'PNG', margin, margin, calcW, calcH);
+      
+      // 壓上專案名稱與時間戳記浮水印
+      const projName = document.getElementById('proj-name').value || 'Topology';
+      const dateStr = new Date().toLocaleString('zh-TW');
+      pdf.setTextColor(150);
+      pdf.setFontSize(9);
+      pdf.text(`Project: ${projName}  |  Audit Date: ${dateStr}  |  NetTopology Pro`, margin, pdfH - 5);
+      
+      pdf.save(`${projName}_Audit.pdf`);
+      notify('📄', 'PDF 稽核報表匯出成功！');
+    } catch (e) {
+      notify('❌', 'PDF 匯出失敗');
+      console.error(e);
+    }
+    if(oldGrid) toggleGrid(document.querySelector('button[onclick="toggleGrid(this)"]')); // 恢復網格
+  }, 500);
+}
+
+function doExportCSV() {
+  closeModal('mo-export');
+  const projName = document.getElementById('proj-name').value || 'Topology';
+  let csv = "設備名稱,設備類型,IP位址,所屬部門,狀態,備註\n";
+  
+  S.nodes.forEach(n => {
+    const safeName = (n.label||'').replace(/"/g, '""');
+    const safeNote = (n.note||'').replace(/"/g, '""');
+    csv += `"${safeName}","${n.type}","${n.ip}","${n.dept||''}","${n.status}","${safeNote}"\n`;
+  });
+  
+  // 加入 BOM 以支援 Excel 中文顯示
+  const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${projName}_設備清單.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  notify('📊', 'BOM 設備清單匯出成功');
+}
 </script>
 </body>
 </html>
