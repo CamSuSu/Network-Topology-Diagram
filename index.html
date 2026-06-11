@@ -1,0 +1,3590 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#060b14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Su網路拓樸圖 Pro">
+<meta name="description" content="專業網路拓樸圖設計工具 — SU網管工程師專用">
+<title>NetTopology Pro — 網路拓樸設計系統</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════ CSS VARIABLES ═══════════════════════════ */
+:root {
+  --bg0:#04090f;--bg1:#070e1a;--bg2:#0c1526;--bg3:#111e33;
+  --glass:rgba(255,255,255,0.035);--hover:rgba(255,255,255,0.06);
+  --blue:#2d9cfe;--cyan:#00e5cc;--purple:#a855f7;--green:#22d3a0;
+  --orange:#f97316;--red:#ef4444;--yellow:#fbbf24;--pink:#f472b6;
+  --t1:#dce9ff;--t2:#6b86aa;--t3:#3a506d;
+  --border:rgba(45,156,254,0.14);--border2:rgba(45,156,254,0.38);
+  --r1:6px;--r2:10px;--r3:16px;--r4:22px;
+  --fn:'Sora',sans-serif;--fm:'JetBrains Mono',monospace;
+  --sbw:272px;--tbh:54px;--rpw:294px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;font-family:var(--fn);background:var(--bg0);color:var(--t1);overflow:hidden;-webkit-font-smoothing:antialiased}
+
+/* ═══════════════════════════ TOOLBAR ═══════════════════════════ */
+#tb{
+  position:fixed;top:0;left:0;right:0;height:var(--tbh);
+  background:rgba(4,9,15,0.95);backdrop-filter:blur(20px) saturate(160%);
+  -webkit-backdrop-filter:blur(20px) saturate(160%);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:0;z-index:2000;padding:0 10px;
+  user-select:none;
+}
+.tb-logo{display:flex;align-items:center;gap:8px;margin-right:12px;flex-shrink:0}
+.tb-logo-icon{
+  width:30px;height:30px;
+  background:linear-gradient(135deg,var(--blue),var(--cyan));
+  border-radius:7px;display:flex;align-items:center;justify-content:center;
+  font-size:15px;box-shadow:0 0 14px rgba(45,156,254,0.45);flex-shrink:0
+}
+.tb-logo span{font-size:14px;font-weight:700;letter-spacing:0.01em;
+  background:linear-gradient(120deg,#dce9ff,var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.tb-sep{width:1px;height:28px;background:var(--border);margin:0 6px;flex-shrink:0}
+.tb-group{display:flex;align-items:center;gap:1px}
+.tbtn{
+  height:30px;min-width:30px;padding:0 6px;border:none;background:transparent;
+  color:var(--t2);cursor:pointer;border-radius:var(--r1);font-size:13px;
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  transition:all 0.15s;white-space:nowrap;flex-shrink:0;font-family:var(--fn);
+  position:relative;
+}
+.tbtn:hover{background:var(--hover);color:var(--t1)}
+.tbtn.act{background:rgba(45,156,254,0.18);color:var(--blue);box-shadow:inset 0 0 0 1px rgba(45,156,254,0.3)}
+.tbtn-label{font-size:10.5px;display:none}
+.tbtn .tip{
+  position:absolute;top:36px;left:50%;transform:translateX(-50%);
+  background:rgba(7,14,26,0.97);color:var(--t1);padding:4px 8px;border-radius:5px;
+  font-size:10px;white-space:nowrap;pointer-events:none;
+  border:1px solid var(--border);z-index:9999;opacity:0;transition:opacity 0.15s;
+  box-shadow:0 4px 12px rgba(0,0,0,0.4);
+}
+.tbtn:hover .tip{opacity:1}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:5px}
+.proj-input{
+  background:var(--glass);border:1px solid var(--border);color:var(--t1);
+  padding:5px 10px;border-radius:var(--r1);font-family:var(--fn);font-size:12px;
+  outline:none;width:150px;transition:border-color 0.2s
+}
+.proj-input:focus{border-color:var(--blue)}
+.btn-pri{
+  background:linear-gradient(135deg,var(--blue),rgba(45,156,254,0.6));
+  border:none;color:#fff;padding:5px 12px;border-radius:var(--r1);
+  font-family:var(--fn);font-size:11px;font-weight:600;cursor:pointer;
+  transition:all 0.18s;white-space:nowrap
+}
+.btn-pri:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.btn-save{
+  background:linear-gradient(135deg,var(--green),rgba(34,211,160,0.6));
+  border:none;color:#fff;padding:5px 12px;border-radius:var(--r1);
+  font-family:var(--fn);font-size:11px;font-weight:600;cursor:pointer;
+  transition:all 0.18s;white-space:nowrap
+}
+.btn-save:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.btn-ghost{
+  background:var(--glass);border:1px solid var(--border);color:var(--t2);
+  padding:5px 10px;border-radius:var(--r1);font-family:var(--fn);
+  font-size:11px;cursor:pointer;transition:all 0.18s;white-space:nowrap
+}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+
+/* Kbd shortcut tag */
+.kbd{
+  display:inline-block;background:var(--bg3);border:1px solid var(--border);
+  border-radius:3px;padding:1px 4px;font-family:var(--fm);font-size:9px;color:var(--t3)
+}
+
+/* ═══════════════════════════ APP LAYOUT ═══════════════════════════ */
+#app{position:fixed;top:var(--tbh);left:0;right:0;bottom:0;display:flex;overflow:hidden}
+
+/* ═══════════════════════════ LEFT SIDEBAR ═══════════════════════════ */
+#sb{
+  width:var(--sbw);flex-shrink:0;
+  background:var(--bg1);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;z-index:500;
+  transition:width 0.28s cubic-bezier(.4,0,.2,1), transform 0.28s cubic-bezier(.4,0,.2,1);
+  position:relative;
+}
+#sb.collapsed{width:0;min-width:0}
+.sb-toggle-btn{
+  position:absolute;top:50%;transform:translateY(-50%);
+  right:-18px;width:18px;height:44px;background:var(--bg1);
+  border:1px solid var(--border);border-left:none;border-radius:0 6px 6px 0;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  color:var(--t3);font-size:9px;z-index:501;transition:all 0.28s cubic-bezier(.4,0,.2,1);
+  flex-shrink:0;
+}
+.sb-toggle-btn:hover{color:var(--blue);background:var(--hover)}
+.sb-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
+.sb-tab{
+  flex:1;padding:9px 4px;text-align:center;font-size:9.5px;font-weight:600;
+  letter-spacing:0.06em;text-transform:uppercase;color:var(--t3);
+  cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s
+}
+.sb-tab.act{color:var(--blue);border-bottom-color:var(--blue)}
+.sb-panel{display:none;flex:1;overflow-y:auto;padding:10px}
+.sb-panel.act{display:flex;flex-direction:column;gap:6px}
+.sb-section-title{
+  font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--t3);padding:2px 4px;margin-top:6px;
+  display:flex;align-items:center;gap:5px;
+}
+.sb-section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* Device grid */
+.dev-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
+.dev-item{
+  background:var(--glass);border:1px solid var(--border);border-radius:var(--r2);
+  padding:7px 4px;cursor:grab;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  transition:all 0.18s;user-select:none;-webkit-user-select:none;
+  position:relative;overflow:hidden;
+}
+.dev-item:hover{border-color:var(--blue);background:rgba(45,156,254,0.07);transform:translateY(-1px);box-shadow:0 4px 12px rgba(45,156,254,0.12)}
+.dev-item:active{transform:scale(0.95);cursor:grabbing}
+.dev-ico{
+  width:38px;height:38px;display:flex;align-items:center;justify-content:center;
+  border-radius:9px;flex-shrink:0;position:relative;overflow:hidden;
+}
+.dev-ico svg{width:24px;height:24px}
+.dev-ico .ico-emoji{font-size:20px;line-height:1}
+.dev-lbl{font-size:9px;color:var(--t2);text-align:center;font-weight:600;line-height:1.2;word-break:keep-all}
+.dev-item.adding{animation:addPulse 0.3s ease}
+@keyframes addPulse{0%{transform:scale(1)}50%{transform:scale(0.92)}100%{transform:scale(1)}}
+
+/* Conn types */
+.conn-list{display:flex;flex-direction:column;gap:3px}
+.conn-item{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 9px;border-radius:var(--r1);cursor:pointer;
+  border:1px solid transparent;transition:all 0.15s
+}
+.conn-item:hover{background:var(--hover)}
+.conn-item.sel{background:rgba(45,156,254,0.1);border-color:var(--border2)}
+.conn-line-preview{width:26px;flex-shrink:0}
+.conn-lbl{font-size:11px;color:var(--t2);flex:1}
+.conn-badge{font-size:9px;font-family:var(--fm);color:var(--t3);background:var(--bg2);padding:1px 5px;border-radius:100px}
+
+/* ═══════════════════════════ CANVAS ═══════════════════════════ */
+#cw{flex:1;position:relative;overflow:hidden;background:var(--bg0)}
+#grid{
+  position:absolute;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(45,156,254,0.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(45,156,254,0.045) 1px,transparent 1px);
+  background-size:40px 40px;
+  transition:opacity 0.3s;
+}
+#grid::after{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(45,156,254,0.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(45,156,254,0.018) 1px,transparent 1px);
+  background-size:200px 200px
+}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0;opacity:0.08}
+#svg{position:absolute;inset:0;z-index:2;width:100%;height:100%;display:block}
+#svg.tool-select{cursor:default}
+#svg.tool-connect{cursor:crosshair}
+#svg.tool-pan{cursor:grab}
+#svg.tool-pan.panning{cursor:grabbing}
+#svg.tool-zone{cursor:crosshair}
+#svg.tool-text{cursor:text}
+#svg.tool-erase{cursor:cell}
+#svg.tool-line{cursor:crosshair}
+#svg.tool-label{cursor:text}
+
+/* Selection rubber-band */
+#selbox{
+  position:absolute;z-index:10;pointer-events:none;display:none;
+  border:1.5px solid var(--blue);background:rgba(45,156,254,0.06);
+}
+
+/* ═══════════════════════════ RIGHT PANEL ═══════════════════════════ */
+#rp{
+  width:var(--rpw);flex-shrink:0;
+  background:var(--bg1);border-left:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;z-index:500;
+  transition:width 0.28s cubic-bezier(.4,0,.2,1), transform 0.28s cubic-bezier(.4,0,.2,1);
+  position:relative;
+}
+#rp.hidden{width:0;min-width:0}
+/* Show-panel button (always visible toggle) */
+#rp-show-btn{
+  position:absolute;top:50%;left:-18px;transform:translateY(-50%);
+  width:18px;height:44px;background:var(--bg1);
+  border:1px solid var(--border);border-right:none;border-radius:6px 0 0 6px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  color:var(--t3);font-size:9px;z-index:501;transition:all 0.28s cubic-bezier(.4,0,.2,1);
+  flex-shrink:0;
+}
+#rp-show-btn:hover{color:var(--blue);background:var(--hover)}
+.rp-head{
+  padding:11px 13px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0
+}
+.rp-head h3{font-size:12px;font-weight:600;color:var(--t1)}
+.rp-body{flex:1;overflow-y:auto;padding:12px}
+.pg{margin-bottom:12px}
+.pl{font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--t3);display:block;margin-bottom:4px}
+.pi{
+  width:100%;background:var(--glass);border:1px solid var(--border);color:var(--t1);
+  padding:6px 9px;border-radius:var(--r1);font-family:var(--fm);font-size:11px;outline:none;
+  transition:border-color 0.18s
+}
+.pi:focus{border-color:var(--blue)}
+.ps{
+  width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--t1);
+  padding:6px 9px;border-radius:var(--r1);font-family:var(--fn);font-size:11px;outline:none;cursor:pointer
+}
+.pi-area{
+  width:100%;background:var(--glass);border:1px solid var(--border);color:var(--t1);
+  padding:6px 9px;border-radius:var(--r1);font-family:var(--fm);font-size:11px;outline:none;resize:vertical;min-height:58px
+}
+.color-row{display:flex;gap:5px;flex-wrap:wrap}
+.cchip{
+  width:20px;height:20px;border-radius:5px;cursor:pointer;
+  border:2px solid transparent;transition:all 0.15s;flex-shrink:0
+}
+.cchip:hover,.cchip.on{border-color:#fff;transform:scale(1.2)}
+.stat-g{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px}
+.stat-c{background:var(--glass);border:1px solid var(--border);border-radius:var(--r1);padding:7px;text-align:center}
+.stat-v{font-size:17px;font-weight:700;color:var(--blue)}
+.stat-k{font-size:9px;color:var(--t3);margin-top:2px}
+.proj-list-item{
+  padding:8px 9px;border-radius:var(--r1);cursor:pointer;
+  border:1px solid transparent;display:flex;align-items:center;gap:7px;
+  margin-bottom:3px;transition:all 0.15s
+}
+.proj-list-item:hover{background:var(--hover)}
+.proj-list-item.on{background:rgba(45,156,254,0.1);border-color:var(--border2)}
+.proj-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.proj-name-txt{font-size:11px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.proj-meta{font-size:9px;color:var(--t3);font-family:var(--fm)}
+
+/* ═══════════════════════════ OVERLAYS ═══════════════════════════ */
+#ctx{
+  position:fixed;z-index:9999;
+  background:rgba(7,14,26,0.98);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border2);border-radius:var(--r3);padding:5px;
+  min-width:165px;display:none;box-shadow:0 20px 50px rgba(0,0,0,0.6)
+}
+.ci{
+  padding:7px 11px;border-radius:8px;font-size:11px;cursor:pointer;
+  display:flex;align-items:center;gap:7px;color:var(--t2);transition:background 0.1s
+}
+.ci:hover{background:var(--hover);color:var(--t1)}
+.ci.danger:hover{background:rgba(239,68,68,0.1);color:var(--red)}
+.ci-kbd{margin-left:auto;font-size:9px;color:var(--t3);font-family:var(--fm)}
+.cs{height:1px;background:var(--border);margin:3px 0}
+
+#notif{
+  position:fixed;bottom:22px;left:50%;
+  transform:translateX(-50%) translateY(70px);
+  background:rgba(7,14,26,0.96);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border:1px solid var(--border2);border-radius:100px;
+  padding:9px 18px;font-size:11px;color:var(--t1);
+  z-index:9999;transition:transform 0.3s cubic-bezier(.34,1.5,.64,1);
+  display:flex;align-items:center;gap:7px
+}
+#notif.show{transform:translateX(-50%) translateY(0)}
+
+/* Modal */
+.mo{
+  position:fixed;inset:0;background:rgba(0,0,0,0.65);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  z-index:8000;display:none;align-items:center;justify-content:center
+}
+.mo.open{display:flex}
+.mb{
+  background:var(--bg2);border:1px solid var(--border2);
+  border-radius:var(--r4);padding:24px;
+  width:92%;max-width:480px;max-height:90vh;overflow-y:auto;
+  box-shadow:0 24px 64px rgba(0,0,0,0.5);
+  animation:mbIn 0.22s cubic-bezier(.34,1.5,.64,1)
+}
+@keyframes mbIn{from{opacity:0;transform:scale(0.9) translateY(16px)}to{opacity:1;transform:none}}
+.mb h2{font-size:16px;font-weight:700;margin-bottom:4px}
+.mb .sub{font-size:11px;color:var(--t3);margin-bottom:18px}
+.mf{display:flex;flex-direction:column;gap:10px}
+.mac{display:flex;gap:7px;margin-top:12px;justify-content:flex-end}
+
+/* Minimap */
+#mm{
+  position:absolute;bottom:56px;right:12px;
+  width:148px;height:94px;
+  background:rgba(4,9,15,0.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;z-index:100;cursor:pointer
+}
+#mmsvg{width:100%;height:100%}
+#mmvp{fill:rgba(45,156,254,0.08);stroke:var(--blue);stroke-width:1}
+
+/* Zoom controls */
+#zc{
+  position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;gap:1px;
+  background:rgba(4,9,15,0.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--border);border-radius:100px;padding:3px 5px;z-index:100
+}
+.zbtn{
+  width:26px;height:26px;border:none;background:transparent;color:var(--t2);
+  cursor:pointer;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:13px;transition:all 0.15s
+}
+.zbtn:hover{background:var(--hover);color:var(--t1)}
+#zval{font-family:var(--fm);font-size:10px;color:var(--t2);min-width:38px;text-align:center;cursor:pointer}
+#zval:hover{color:var(--blue)}
+
+/* Legend */
+#legend{
+  position:absolute;top:10px;left:10px;z-index:100;
+  background:rgba(4,9,15,0.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--border);border-radius:var(--r2);padding:9px 11px;
+  font-size:9px;min-width:110px
+}
+.leg-t{color:var(--t3);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px}
+.leg-r{display:flex;align-items:center;gap:6px;margin-bottom:4px;color:var(--t2)}
+.leg-l{width:22px;height:2px;border-radius:2px;flex-shrink:0}
+
+/* Connect mode indicator */
+#conn-mode-bar{
+  position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  background:rgba(45,156,254,0.12);backdrop-filter:blur(12px);
+  border:1px solid var(--blue);border-radius:100px;
+  padding:7px 16px;font-size:11px;color:var(--blue);
+  z-index:100;display:none;align-items:center;gap:8px;white-space:nowrap
+}
+#conn-mode-bar.show{display:flex}
+
+/* Keyboard shortcut overlay */
+#kbd-help{
+  position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);
+  z-index:9000;display:none;align-items:center;justify-content:center
+}
+#kbd-help.open{display:flex}
+.kbd-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;
+  font-size:11px;color:var(--t2);
+}
+.kbd-row{display:flex;align-items:center;gap:8px}
+.kbd-row .kbd{min-width:36px;text-align:center}
+
+/* Save indicator */
+#save-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--green);
+  display:inline-block;margin-left:4px;
+  animation:savePulse 2s ease-in-out infinite;
+}
+@keyframes savePulse{0%,100%{opacity:0.4}50%{opacity:1}}
+#save-dot.dirty{background:var(--yellow);animation:none}
+
+/* ═══════════════════════════ MOBILE ═══════════════════════════ */
+#mob-sb-btn,#mob-rp-btn{display:none}
+#sb-overlay{position:fixed;inset:0;z-index:490;background:rgba(0,0,0,0.35);display:none}
+#sb-overlay.on{display:block}
+
+@media(max-width:768px){
+  :root{--sbw:100%;--rpw:100%;--tbh:50px}
+  #sb{
+    position:fixed;bottom:0;left:0;right:0;
+    width:100%;height:220px;top:auto;flex-direction:row;
+    border-right:none;border-top:1px solid var(--border);
+    transform:translateY(100%);
+  }
+  #sb.open{transform:translateY(0)}
+  #sb.collapsed{transform:translateY(100%)}
+  #sb .sb-tabs{flex-direction:column;width:40px;flex-shrink:0;border-bottom:none;border-right:1px solid var(--border)}
+  #sb .sb-tab{writing-mode:vertical-rl;padding:10px 4px;font-size:8px;height:auto;flex:1;border-bottom:none;border-right:2px solid transparent}
+  #sb .sb-tab.act{border-right-color:var(--blue);border-bottom:none}
+  #rp{
+    position:fixed;bottom:0;left:0;right:0;
+    width:100%;height:55vh;top:auto;
+    border-left:none;border-top:1px solid var(--border);
+    border-radius:var(--r4) var(--r4) 0 0;
+    transform:translateY(100%);
+  }
+  #rp.open{transform:translateY(0)}
+  #rp.hidden{transform:translateY(100%)}
+  #mob-sb-btn,#mob-rp-btn{display:flex}
+  #mm{display:none}
+  .tb-logo span{display:none}
+  .proj-input{width:100px}
+  .tbtn-label{display:none}
+  #legend{display:none}
+  .sb-toggle-btn{display:none}
+  #rp-show-btn{display:none}
+}
+@media(min-width:769px) and (max-width:1100px){
+  :root{--sbw:234px;--rpw:254px}
+}
+@media(min-width:1400px){
+  .tbtn-label{display:inline}
+}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--border2)}
+
+/* SVG node animation */
+@keyframes pulse-node{0%,100%{opacity:0.35}50%{opacity:0.75}}
+@keyframes slideIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<!-- ═══ TOOLBAR ═══ -->
+<header id="tb">
+  <div class="tb-logo">
+    <div class="tb-logo-icon">⬡</div>
+    <span>Su網路拓樸圖 Pro</span>
+  </div>
+  <div class="tb-sep"></div>
+
+  <!-- Tool modes -->
+  <div class="tb-group" id="tg-tools">
+    <button class="tbtn act" id="t-select" onclick="setTool('select')">
+      <span>↖</span><span class="tbtn-label">選取</span><span class="tip">選取 <span class="kbd">V</span></span>
+    </button>
+    <button class="tbtn" id="t-connect" onclick="setTool('connect')">
+      <span>⌇</span><span class="tbtn-label">連線</span><span class="tip">連線 <span class="kbd">C</span></span>
+    </button>
+    <button class="tbtn" id="t-pan" onclick="setTool('pan')">
+      <span>✥</span><span class="tbtn-label">平移</span><span class="tip">平移 <span class="kbd">H</span></span>
+    </button>
+    <button class="tbtn" id="t-zone" onclick="setTool('zone')">
+      <span>▣</span><span class="tbtn-label">區域</span><span class="tip">區域框 <span class="kbd">Z</span></span>
+    </button>
+    <button class="tbtn" id="t-label" onclick="setTool('label')">
+      <span>T</span><span class="tbtn-label">文字</span><span class="tip">文字標籤 <span class="kbd">T</span></span>
+    </button>
+    <button class="tbtn" id="t-erase" onclick="setTool('erase')">
+      <span>⊗</span><span class="tbtn-label">刪除</span><span class="tip">橡皮擦 <span class="kbd">E</span></span>
+    </button>
+  </div>
+
+  <div class="tb-sep"></div>
+
+  <!-- Edit actions -->
+  <div class="tb-group">
+    <button class="tbtn" id="btn-undo" onclick="doUndo()"><span>↩</span><span class="tbtn-label">復原</span><span class="tip">復原 <span class="kbd">Ctrl+Z</span></span></button>
+    <button class="tbtn" id="btn-redo" onclick="doRedo()"><span>↪</span><span class="tbtn-label">重做</span><span class="tip">重做 <span class="kbd">Ctrl+Y</span></span></button>
+    <button class="tbtn" onclick="selectAll()"><span>⊞</span><span class="tip">全選 <span class="kbd">Ctrl+A</span></span></button>
+    <button class="tbtn" onclick="deleteSelected()"><span>⌫</span><span class="tip">刪除 <span class="kbd">Del</span></span></button>
+    <button class="tbtn" onclick="doDuplicate()"><span>⧉</span><span class="tip">複製 <span class="kbd">Ctrl+D</span></span></button>
+  </div>
+
+  <div class="tb-sep"></div>
+
+  <!-- Align/distribute (extra topology tools) -->
+  <div class="tb-group">
+    <button class="tbtn" onclick="alignNodes('left')"><span>⊣</span><span class="tip">靠左對齊</span></button>
+    <button class="tbtn" onclick="alignNodes('center')"><span>⊥</span><span class="tip">水平置中</span></button>
+    <button class="tbtn" onclick="alignNodes('right')"><span>⊢</span><span class="tip">靠右對齊</span></button>
+    <button class="tbtn" onclick="distributeNodes('h')"><span>⇔</span><span class="tip">水平等距分佈</span></button>
+    <button class="tbtn" onclick="distributeNodes('v')"><span>⇕</span><span class="tip">垂直等距分佈</span></button>
+  </div>
+
+  <div class="tb-sep"></div>
+
+  <!-- View actions -->
+  <div class="tb-group">
+    <button class="tbtn" onclick="autoLayout()"><span>⊹</span><span class="tip">自動排列 <span class="kbd">L</span></span></button>
+    <button class="tbtn" onclick="fitView()"><span>⤢</span><span class="tip">適應視窗 <span class="kbd">F</span></span></button>
+    <button class="tbtn" onclick="toggleGrid(this)"><span>⊟</span><span class="tip">切換網格 <span class="kbd">G</span></span></button>
+    <button class="tbtn" onclick="addZoneFromBtn()"><span>🏷</span><span class="tip">新增區域框</span></button>
+    <button class="tbtn" onclick="openTemplateModal()"><span>📋</span><span class="tbtn-label">範本</span><span class="tip">插入預設範本</span></button>
+    <button class="tbtn" onclick="confirmClear()"><span>🗑</span><span class="tip">清空畫布</span></button>
+    <button class="tbtn" onclick="showKbdHelp()"><span>⌨</span><span class="tip">快捷鍵說明 <span class="kbd">?</span></span></button>
+  </div>
+
+  <div class="tb-right">
+    <span id="save-dot" title="自動儲存中"></span>
+    <button class="tbtn" id="sb-open-btn" onclick="showSbDesktop()" title="展開元件庫" style="display:none"><span>☰</span><span class="tip">展開元件庫</span></button>
+    <button class="tbtn" id="rp-open-btn" onclick="showRp()" title="展開屬性面板" style="display:none"><span>≡</span><span class="tip">展開屬性面板</span></button>
+    <input type="text" id="proj-name" class="proj-input" value="未命名拓樸圖" placeholder="專案名稱">
+    <button class="btn-ghost" onclick="openNewProjModal()" title="新增專案">＋</button>
+    <button class="btn-save" onclick="manualSave()" title="儲存 Ctrl+S">💾 儲存</button>
+    <button class="btn-pri" onclick="openExportModal()">↗ 匯出</button>
+    <button class="tbtn" id="mob-sb-btn" onclick="toggleSb()"><span>⊞</span><span class="tip">元件庫</span></button>
+    <button class="tbtn" id="mob-rp-btn" onclick="toggleRp()"><span>≡</span><span class="tip">屬性</span></button>
+  </div>
+</header>
+
+<!-- ═══ APP ═══ -->
+<div id="app">
+
+  <!-- LEFT SIDEBAR (with toggle button) -->
+  <aside id="sb">
+    <div class="sb-toggle-btn" id="sb-tog" onclick="toggleSbDesktop()" title="收合/展開元件庫 — 收合後點工具列 ☰ 可重新開啟">◀</div>
+    <div class="sb-tabs">
+      <div class="sb-tab act" onclick="sbTab(0,this)">元件</div>
+      <div class="sb-tab" onclick="sbTab(1,this)">連線</div>
+      <div class="sb-tab" onclick="sbTab(2,this)">搜尋</div>
+      <div class="sb-tab" onclick="sbTab(3,this)">模板</div>
+    </div>
+
+    <!-- Tab 0: Device palette -->
+    <div class="sb-panel act" id="sbp-0">
+      <div id="dev-palette"></div>
+    </div>
+
+    <!-- Tab 1: Connection types -->
+    <div class="sb-panel" id="sbp-1">
+      <div class="sb-section-title">連線類型</div>
+      <div class="conn-list" id="conn-list"></div>
+      <div class="sb-section-title" style="margin-top:8px">快速設定</div>
+      <div class="pg">
+        <span class="pl">連線標籤</span>
+        <input class="pi" id="conn-label-input" type="text" placeholder="1Gbps / VLAN10 …">
+      </div>
+      <div class="pg">
+        <span class="pl">頻寬</span>
+        <select class="ps" id="conn-bw-sel">
+          <option value="">自動</option>
+          <option value="10Mbps">10 Mbps</option>
+          <option value="100Mbps">100 Mbps</option>
+          <option value="1Gbps">1 Gbps</option>
+          <option value="10Gbps">10 Gbps</option>
+          <option value="25Gbps">25 Gbps</option>
+          <option value="40Gbps">40 Gbps</option>
+          <option value="100Gbps">100 Gbps</option>
+          <option value="T1/1.5M">T1 / 1.5 Mbps</option>
+          <option value="T3/45M">T3 / 45 Mbps</option>
+          <option value="ADSL">ADSL</option>
+          <option value="光纖100M">光纖 100M</option>
+          <option value="光纖1G">光纖 1G</option>
+          <option value="光纖10G">光纖 10G</option>
+        </select>
+      </div>
+      <div class="pg">
+        <span class="pl">連線方向</span>
+        <select class="ps" id="conn-dir-sel">
+          <option value="uni">單向 →</option>
+          <option value="bi">雙向 ↔</option>
+          <option value="none">無箭頭</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Tab 2: Search -->
+    <div class="sb-panel" id="sbp-2">
+      <input class="pi" id="dev-search" type="text" placeholder="🔍 搜尋設備名稱或類型…" oninput="filterDevices(this.value)" style="margin-bottom:8px">
+      <div id="dev-search-result"><div style="font-size:10px;color:var(--t3);padding:4px;text-align:center">輸入關鍵字搜尋設備</div></div>
+    </div>
+
+    <!-- Tab 3: Templates -->
+    <div class="sb-panel" id="sbp-3">
+      <div class="sb-section-title">快速插入範本</div>
+      <div style="display:flex;flex-direction:column;gap:5px" id="template-list"></div>
+    </div>
+  </aside>
+  <div id="sb-overlay" onclick="closeSb()"></div>
+
+  <!-- CANVAS -->
+  <div id="cw">
+    <div id="grid"></div>
+    <div class="orb" style="width:500px;height:500px;background:radial-gradient(circle,#2d9cfe,transparent 70%);top:-150px;left:35%"></div>
+    <div class="orb" style="width:350px;height:350px;background:radial-gradient(circle,#a855f7,transparent 70%);bottom:-120px;right:8%"></div>
+
+    <div id="selbox"></div>
+
+    <!-- Connection mode indicator -->
+    <div id="conn-mode-bar">
+      <span>🔗 連線模式：先點來源節點，再點目標節點</span>
+      <button class="btn-ghost" style="padding:3px 8px;font-size:10px" onclick="cancelConnect()">取消 (Esc)</button>
+    </div>
+
+    <!-- SVG canvas -->
+    <svg id="svg" class="tool-select"></svg>
+
+    <!-- Legend -->
+    <div id="legend">
+      <div class="leg-t">圖例</div>
+      <div id="legend-rows"></div>
+    </div>
+
+    <!-- Minimap -->
+    <div id="mm" onclick="minimapClick(event)" title="縮略圖 — 點擊跳至">
+      <svg id="mmsvg"><rect id="mmvp" x="0" y="0" width="30" height="20"/></svg>
+    </div>
+
+    <!-- Zoom bar -->
+    <div id="zc">
+      <button class="zbtn" onclick="doZoom(-0.12)" title="縮小">−</button>
+      <span id="zval" onclick="resetView()" title="點擊重置視角">100%</span>
+      <button class="zbtn" onclick="doZoom(0.12)" title="放大">＋</button>
+      <button class="zbtn" onclick="fitView()" style="font-size:10px" title="適應畫面">⤢</button>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <aside id="rp">
+    <!-- Toggle btn (always visible on desktop) -->
+    <div id="rp-show-btn" onclick="toggleRp()" title="展開/收合屬性面板">◀</div>
+    <div class="rp-head">
+      <h3 id="rp-title">畫布資訊</h3>
+      <button class="tbtn" onclick="closeRp()" style="width:24px;height:24px;font-size:11px" title="關閉面板 (點右側 ◀ 可重新開啟)">✕</button>
+    </div>
+    <div class="rp-body" id="rp-body"></div>
+  </aside>
+</div>
+
+<!-- Context menu -->
+<div id="ctx">
+  <div class="ci" onclick="ctx_duplicate()">⧉ 複製節點<span class="ci-kbd">Ctrl+D</span></div>
+  <div class="ci" onclick="ctx_startConnect()">⌇ 從此節點連線<span class="ci-kbd">C</span></div>
+  <div class="ci" onclick="ctx_editLabel()">✎ 編輯名稱<span class="ci-kbd">F2</span></div>
+  <div class="ci" onclick="ctx_editIP()">🌐 設定 IP</div>
+  <div class="cs"></div>
+  <div class="ci" onclick="ctx_bringFront()">▲ 移到最前</div>
+  <div class="ci" onclick="ctx_sendBack()">▼ 移到最後</div>
+  <div class="cs"></div>
+  <div class="ci" onclick="ctx_toggleStatus()">🔄 切換狀態</div>
+  <div class="ci" onclick="ctx_addNote()">📝 新增備註</div>
+  <div class="cs"></div>
+  <div class="ci danger" onclick="deleteSelected()">⌫ 刪除<span class="ci-kbd">Del</span></div>
+</div>
+
+<!-- Notification -->
+<div id="notif"><span id="ni">✓</span><span id="nm">已儲存</span></div>
+
+<!-- Connection label inline edit (備用，目前以 prompt 替代) -->
+<input id="conn-label-edit" type="text" placeholder="連線標籤…" style="position:fixed;z-index:9000;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r1);padding:4px 8px;font-family:var(--fm);font-size:11px;color:var(--t1);outline:none;min-width:120px;display:none;pointer-events:none">
+
+<!-- Keyboard shortcut help -->
+<div id="kbd-help">
+  <div class="mb" style="max-width:520px">
+    <h2>⌨ 快捷鍵說明</h2>
+    <p class="sub">所有可用快捷鍵一覽</p>
+    <div class="kbd-grid">
+      <div class="kbd-row"><span class="kbd">V</span> 選取工具</div>
+      <div class="kbd-row"><span class="kbd">C</span> 連線工具</div>
+      <div class="kbd-row"><span class="kbd">H</span> 平移工具</div>
+      <div class="kbd-row"><span class="kbd">Z</span> 區域框工具</div>
+      <div class="kbd-row"><span class="kbd">T</span> 文字標籤工具</div>
+      <div class="kbd-row"><span class="kbd">E</span> 橡皮擦工具</div>
+      <div class="kbd-row"><span class="kbd">F</span> 適應視窗</div>
+      <div class="kbd-row"><span class="kbd">Ctrl+F</span> 搜尋設備</div>
+      <div class="kbd-row"><span class="kbd">G</span> 切換網格</div>
+      <div class="kbd-row"><span class="kbd">L</span> 自動排列</div>
+      <div class="kbd-row"><span class="kbd">Del</span> 刪除選取</div>
+      <div class="kbd-row"><span class="kbd">Ctrl+Z</span> 復原</div>
+      <div class="kbd-row"><span class="kbd">Ctrl+Y</span> 重做</div>
+      <div class="kbd-row"><span class="kbd">Ctrl+A</span> 全選</div>
+      <div class="kbd-row"><span class="kbd">Ctrl+D</span> 複製</div>
+      <div class="kbd-row"><span class="kbd">Ctrl+S</span> 儲存</div>
+      <div class="kbd-row"><span class="kbd">Ctrl+G</span> 群組為區域</div>
+      <div class="kbd-row"><span class="kbd">F2</span> 重新命名</div>
+      <div class="kbd-row"><span class="kbd">Esc</span> 取消/取消選取</div>
+      <div class="kbd-row"><span class="kbd">↑↓←→</span> 微移節點 (5px)</div>
+      <div class="kbd-row"><span class="kbd">Shift+↑↓←→</span> 微移 20px</div>
+      <div class="kbd-row"><span class="kbd">Shift+拖曳</span> 加入選取</div>
+      <div class="kbd-row"><span class="kbd">?</span> 此說明</div>
+    </div>
+    <div class="mac"><button class="btn-pri" onclick="document.getElementById('kbd-help').classList.remove('open')">關閉</button></div>
+  </div>
+</div>
+
+<!-- ═══ MODALS ═══ -->
+<!-- New project modal -->
+<div class="mo" id="mo-newproj">
+  <div class="mb">
+    <h2>建立新拓樸圖</h2>
+    <p class="sub">新增一個獨立的拓樸圖專案</p>
+    <div class="mf">
+      <div><span class="pl">專案名稱</span><input class="pi" id="m-pname" type="text" placeholder="例：總公司網路架構" autofocus></div>
+      <div>
+        <span class="pl">類別</span>
+        <select class="ps" id="m-pdept">
+          <option value="IT">IT 資訊部門</option>
+          <option value="OT">OT 工控網路</option>
+          <option value="DMZ">DMZ 非軍事區</option>
+          <option value="Cloud">雲端架構</option>
+          <option value="Campus">校園/企業園區</option>
+          <option value="DC">資料中心</option>
+          <option value="Store">門市/分店</option>
+          <option value="Factory">工廠</option>
+          <option value="Custom">自訂</option>
+        </select>
+      </div>
+      <div>
+        <span class="pl">規模</span>
+        <select class="ps" id="m-pscale">
+          <option value="small">小型 (&lt;20 設備)</option>
+          <option value="medium">中型 (20–100 設備)</option>
+          <option value="large">大型 (100+ 設備)</option>
+        </select>
+      </div>
+    </div>
+    <div class="mac">
+      <button class="btn-ghost" onclick="closeModal('mo-newproj')">取消</button>
+      <button class="btn-pri" onclick="createProject()">建立</button>
+    </div>
+  </div>
+</div>
+
+<!-- Export modal -->
+<div class="mo" id="mo-export">
+  <div class="mb">
+    <h2>匯出 / 儲存</h2>
+    <p class="sub">選擇匯出格式或儲存至本機</p>
+    <div style="display:flex;flex-direction:column;gap:7px">
+      <button class="btn-ghost" style="padding:11px;text-align:left" onclick="doExport('save')">
+        <div style="font-size:12px;font-weight:600;color:var(--t1)">💾 儲存專案 (.ntp)</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:2px">儲存目前拓樸圖至本機檔案，可隨時重新開啟</div>
+      </button>
+      <button class="btn-ghost" style="padding:11px;text-align:left" onclick="doExport('json')">
+        <div style="font-size:12px;font-weight:600;color:var(--t1)">📦 JSON 備份 (全部專案)</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:2px">備份所有專案資料，可還原</div>
+      </button>
+      <button class="btn-ghost" style="padding:11px;text-align:left" onclick="doExport('svg')">
+        <div style="font-size:12px;font-weight:600;color:var(--t1)">📐 SVG 向量圖</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:2px">無損縮放，適合報告/簡報嵌入</div>
+      </button>
+      <button class="btn-ghost" style="padding:11px;text-align:left" onclick="doExport('png')">
+        <div style="font-size:12px;font-weight:600;color:var(--t1)">🖼 PNG 點陣圖 (2×)</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:2px">高解析度，適合插入 Word/PowerPoint</div>
+      </button>
+      <button class="btn-ghost" style="padding:11px;text-align:left" onclick="doExport('import')">
+        <div style="font-size:12px;font-weight:600;color:var(--t1)">📥 匯入 JSON / .ntp</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:2px">從備份檔案還原專案</div>
+      </button>
+    </div>
+    <div class="mac"><button class="btn-ghost" onclick="closeModal('mo-export')">關閉</button></div>
+  </div>
+</div>
+
+<!-- Custom device modal -->
+<div class="mo" id="mo-custom">
+  <div class="mb">
+    <h2>自定義裝置</h2>
+    <p class="sub">建立自訂設備類型，出現在元件庫中</p>
+    <div class="mf">
+      <div><span class="pl">裝置名稱</span><input class="pi" id="cd-name" type="text" placeholder="例：鼎新ERP Server"></div>
+      <div><span class="pl">圖示 (Emoji)</span><input class="pi" id="cd-icon" type="text" placeholder="例：🖥 📦 🔒" maxlength="4"></div>
+      <div>
+        <span class="pl">分類</span>
+        <select class="ps" id="cd-cat">
+          <option value="server">伺服器</option>
+          <option value="network">網路設備</option>
+          <option value="security">資安設備</option>
+          <option value="endpoint">端點設備</option>
+          <option value="iot">IoT/智慧設備</option>
+          <option value="erp">ERP/業務系統</option>
+          <option value="monitor">監控設備</option>
+          <option value="access">門禁/識別</option>
+          <option value="print">列印設備</option>
+          <option value="other">其他</option>
+        </select>
+      </div>
+      <div>
+        <span class="pl">節點顏色</span>
+        <div class="color-row" id="cd-colors"></div>
+      </div>
+    </div>
+    <div class="mac">
+      <button class="btn-ghost" onclick="closeModal('mo-custom')">取消</button>
+      <button class="btn-pri" onclick="saveCustomDevice()">建立</button>
+    </div>
+  </div>
+</div>
+
+<!-- Zone modal -->
+<div class="mo" id="mo-zone">
+  <div class="mb">
+    <h2>新增區域框</h2>
+    <p class="sub">為設備群組劃定網路區域</p>
+    <div class="mf">
+      <div><span class="pl">區域名稱</span><input class="pi" id="z-name" type="text" placeholder="例：IT機房 / DMZ / 辦公區"></div>
+      <div>
+        <span class="pl">框線顏色</span>
+        <div class="color-row" id="z-colors"></div>
+      </div>
+      <div><span class="pl">備註</span><input class="pi" id="z-note" type="text" placeholder="可選填 VLAN、子網等"></div>
+    </div>
+    <div class="mac">
+      <button class="btn-ghost" onclick="closeModal('mo-zone')">取消</button>
+      <button class="btn-pri" onclick="finishAddZone()">確認建立</button>
+    </div>
+  </div>
+</div>
+
+<!-- Text label modal -->
+<div class="mo" id="mo-label">
+  <div class="mb">
+    <h2>T 新增文字標籤</h2>
+    <p class="sub">在畫布上放置自由文字</p>
+    <div class="mf">
+      <div><span class="pl">文字內容</span><input class="pi" id="lbl-text" type="text" placeholder="例：核心交換層 / VLAN 10"></div>
+      <div>
+        <span class="pl">字型大小</span>
+        <select class="ps" id="lbl-size">
+          <option value="11">小 (11px)</option>
+          <option value="14" selected>中 (14px)</option>
+          <option value="18">大 (18px)</option>
+          <option value="24">特大 (24px)</option>
+        </select>
+      </div>
+      <div>
+        <span class="pl">顏色</span>
+        <div class="color-row" id="lbl-colors"></div>
+      </div>
+    </div>
+    <div class="mac">
+      <button class="btn-ghost" onclick="closeModal('mo-label')">取消</button>
+      <button class="btn-pri" onclick="finishAddLabel()">放置</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import file input (hidden) -->
+<input type="file" id="import-file" accept=".json,.ntp" style="display:none" onchange="handleImport(event)">
+
+<!-- Template Quick Insert Modal -->
+<div class="mo" id="mo-template">
+  <div class="mb" style="max-width:620px;max-height:82vh">
+    <h2>📋 預設範本庫</h2>
+    <p class="sub">選擇規模或架構類型快速套用，可在載入後自由修改</p>
+    <div id="mo-template-body" style="display:flex;flex-direction:column;gap:6px;max-height:55vh;overflow-y:auto;padding-right:4px"></div>
+    <div class="mac"><button class="btn-ghost" onclick="closeModal('mo-template')">關閉</button></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════════════════
+//  DEVICE ICON RENDERER — SVG-based icons for clarity
+// ═══════════════════════════════════════════════════════════════
+// Returns SVG path data for well-known device types, falls back to emoji
+const DEVICE_SVG_ICONS = {
+  router: `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 3C12 3 8 7 8 12s4 9 4 9" stroke="currentColor" stroke-width="1.5"/><path d="M12 3c0 0 4 4 4 9s-4 9-4 9" stroke="currentColor" stroke-width="1.5"/><path d="M3 12h18" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 8.5h17" stroke="currentColor" stroke-width="1"/><path d="M3.5 15.5h17" stroke="currentColor" stroke-width="1"/></svg>`,
+  l3switch: `<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="20" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M6 12h12M8 9.5v5M12 9.5v5M16 9.5v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 17v2M12 17v2M18 17v2" stroke="currentColor" stroke-width="1.5"/></svg>`,
+  switch: `<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="8" width="20" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="18" cy="12" r="1" fill="currentColor"/><path d="M5 8V6M9 8V6M13 8V6M17 8V6M5 16v2M9 16v2M13 16v2M17 16v2" stroke="currentColor" stroke-width="1.2"/></svg>`,
+  firewall: `<svg viewBox="0 0 24 24" fill="none"><path d="M12 2L4 6v6c0 4.4 3.4 8.5 8 9.5 4.6-1 8-5.1 8-9.5V6L12 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  server: `<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="10" width="18" height="5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="17" width="18" height="4" rx="1.5" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="5.5" r="1" fill="currentColor"/><circle cx="7" cy="12.5" r="1" fill="currentColor"/><circle cx="7" cy="19" r="1" fill="currentColor"/></svg>`,
+  web_server: `<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 8h20" stroke="currentColor" stroke-width="1.5"/><circle cx="5" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="6" r="1" fill="currentColor"/><path d="M5 12h6M5 15h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2 18v2M22 18v2M7 18v2M17 18v2" stroke="currentColor" stroke-width="1.2"/></svg>`,
+  db_server: `<svg viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="6" rx="8" ry="3" stroke="currentColor" stroke-width="1.5"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6" stroke="currentColor" stroke-width="1.5"/><path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6" stroke="currentColor" stroke-width="1.5"/></svg>`,
+  firewall2: `<svg viewBox="0 0 24 24" fill="none"><path d="M12 2L4 6v6c0 4.4 3.4 8.5 8 9.5 4.6-1 8-5.1 8-9.5V6L12 2z" stroke="currentColor" stroke-width="1.5"/></svg>`,
+  internet: `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 3C12 3 8 7 8 12s4 9 4 9M12 3c4 4 4 9 4 9s-4 5-4 5" stroke="currentColor" stroke-width="1.2"/><path d="M3 12h18M3.5 8.5h17M3.5 15.5h17" stroke="currentColor" stroke-width="1"/></svg>`,
+  pc: `<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 21h8M12 17v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+  laptop: `<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 20h20l-2-3H4L2 20z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
+  ap: `<svg viewBox="0 0 24 24" fill="none"><path d="M5.5 12.5A9.5 9.5 0 0112 10.5a9.5 9.5 0 016.5 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 16a5.5 5.5 0 018 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 9a13.5 13.5 0 0118 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="20" r="1.5" fill="currentColor"/></svg>`,
+  nas: `<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 9h18M3 14h18" stroke="currentColor" stroke-width="1"/><circle cx="7" cy="6.5" r="0.8" fill="currentColor"/><circle cx="7" cy="11.5" r="0.8" fill="currentColor"/><circle cx="7" cy="16.5" r="0.8" fill="currentColor"/></svg>`,
+  ups: `<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M9 10l2 4h2l2-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="9" y="14" width="6" height="3" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M8 21h8" stroke="currentColor" stroke-width="1.5"/></svg>`,
+  cloud_aws: `<svg viewBox="0 0 24 24" fill="none"><path d="M6 18a4 4 0 01-.5-7.9A5.5 5.5 0 0116.5 9 4 4 0 0118 17H6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  DEVICE DEFINITIONS
+// ═══════════════════════════════════════════════════════════════
+const DEVICE_CATS = {
+  '網路核心':    ['router','l3switch','switch','hub','bridge','patch_panel'],
+  '資安防護':    ['firewall','ids','waf','vpn_gw','proxy','pam','dlp','nac','endpoint_edr','deception'],
+  '無線網路':    ['ap','wlc','mesh','lte_router','wifi6_ap','spectrum_sensor'],
+  '伺服器':      ['server','web_server','db_server','mail_server','dc_server','file_server','app_server','vm_host','container_host','backup_server'],
+  '儲存設備':    ['nas','san','tape_backup','san_switch'],
+  '雲端/ISP':   ['internet','cloud_aws','cloud_azure','cloud_gcp','isp','wan','sd_wan'],
+  '端點設備':    ['pc','laptop','tablet','phone','thin_client','workstation','kiosk'],
+  'ERP/業務系統':['erp_ding','erp_sap','erp_custom','pos_server','timesheet','crm_server'],
+  '監控/稽核':   ['nvr','ip_cam','siem','nms','snmp_mgr','log_server','soar'],
+  '門禁/識別':   ['access_ctrl','card_reader','biometric','intercom','guard_tour'],
+  '列印/週邊':   ['printer','mfp','plotter','label_printer'],
+  'IoT/工控':    ['iot_hub','modbus','plc','hmi','smart_meter','scada'],
+  '通訊設備':    ['pbx','voip_phone','voip_gw','video_conf'],
+  '電源/機房':   ['ups','pdu','kvm','rack','environment_sensor'],
+};
+
+const DEVICES = {
+  // 網路核心
+  router:         {lbl:'路由器',         ico:'🌐', col:'#2d9cfe',  svgKey:'router'},
+  l3switch:       {lbl:'三層交換機',      ico:'⬡',  col:'#00bcd4',  svgKey:'l3switch'},
+  switch:         {lbl:'交換器',          ico:'▦',  col:'#00e5cc',  svgKey:'switch'},
+  hub:            {lbl:'集線器 Hub',      ico:'⊙',  col:'#4db6ac'},
+  bridge:         {lbl:'橋接器',          ico:'⌶',  col:'#80cbc4'},
+  patch_panel:    {lbl:'配線架',          ico:'▤',  col:'#38bdf8'},
+  // 資安防護
+  firewall:       {lbl:'防火牆',          ico:'🛡',  col:'#f97316',  svgKey:'firewall'},
+  ids:            {lbl:'IDS/IPS',         ico:'👁',  col:'#fb923c'},
+  waf:            {lbl:'WAF',             ico:'🔐',  col:'#fbbf24'},
+  vpn_gw:         {lbl:'VPN 閘道',        ico:'🔒',  col:'#f59e0b'},
+  proxy:          {lbl:'代理伺服器',       ico:'🔄',  col:'#d97706'},
+  pam:            {lbl:'特權帳號 PAM',     ico:'🗝',  col:'#b45309'},
+  dlp:            {lbl:'DLP 資料防漏',     ico:'🛑',  col:'#ef4444'},
+  nac:            {lbl:'網路存取控制 NAC', ico:'🔑',  col:'#dc2626'},
+  endpoint_edr:   {lbl:'EDR 端點偵測',    ico:'💊',  col:'#b91c1c'},
+  deception:      {lbl:'蜜罐 Honeypot',   ico:'🍯',  col:'#9f1239'},
+  // 無線
+  ap:             {lbl:'無線 AP',         ico:'📶',  col:'#34d399',  svgKey:'ap'},
+  wlc:            {lbl:'無線控制器 WLC',   ico:'📡',  col:'#10b981'},
+  mesh:           {lbl:'Mesh 節點',       ico:'🕸',  col:'#059669'},
+  lte_router:     {lbl:'LTE/4G 路由',     ico:'📲',  col:'#047857'},
+  wifi6_ap:       {lbl:'Wi-Fi 6 AP',      ico:'📶',  col:'#6ee7b7'},
+  spectrum_sensor:{lbl:'頻譜感測器',       ico:'📻',  col:'#a7f3d0'},
+  // 伺服器
+  server:         {lbl:'伺服器',           ico:'🖥',  col:'#a855f7',  svgKey:'server'},
+  web_server:     {lbl:'Web Server',      ico:'🌐',  col:'#9333ea',  svgKey:'web_server'},
+  db_server:      {lbl:'DB Server',       ico:'🗄',  col:'#7c3aed',  svgKey:'db_server'},
+  mail_server:    {lbl:'Mail Server',     ico:'✉',  col:'#6d28d9'},
+  dc_server:      {lbl:'AD/DC Server',    ico:'🏛',  col:'#5b21b6'},
+  file_server:    {lbl:'檔案伺服器',       ico:'📁',  col:'#8b5cf6'},
+  app_server:     {lbl:'App Server',      ico:'⚙',  col:'#7c3aed'},
+  vm_host:        {lbl:'VM 虛擬主機',      ico:'💻',  col:'#6d28d9'},
+  container_host: {lbl:'容器主機 Docker', ico:'🐳',  col:'#1d4ed8'},
+  backup_server:  {lbl:'備份伺服器',       ico:'📦',  col:'#4f46e5'},
+  // 儲存
+  nas:            {lbl:'NAS 網路儲存',     ico:'💾',  col:'#fbbf24',  svgKey:'nas'},
+  san:            {lbl:'SAN 儲存區網',     ico:'🗂',  col:'#f59e0b'},
+  tape_backup:    {lbl:'磁帶備份',         ico:'📼',  col:'#d97706'},
+  san_switch:     {lbl:'SAN 交換器',      ico:'⬡',  col:'#ca8a04'},
+  // 雲端/ISP
+  internet:       {lbl:'Internet',        ico:'🌍',  col:'#38bdf8',  svgKey:'internet'},
+  cloud_aws:      {lbl:'AWS 雲端',        ico:'☁',  col:'#fb923c',  svgKey:'cloud_aws'},
+  cloud_azure:    {lbl:'Azure 雲端',      ico:'☁',  col:'#3b82f6'},
+  cloud_gcp:      {lbl:'GCP 雲端',        ico:'☁',  col:'#34d399'},
+  isp:            {lbl:'ISP 電信商',       ico:'🏢',  col:'#60a5fa'},
+  wan:            {lbl:'WAN 廣域網',       ico:'🔗',  col:'#93c5fd'},
+  sd_wan:         {lbl:'SD-WAN',          ico:'🔀',  col:'#bfdbfe'},
+  // 端點
+  pc:             {lbl:'PC電腦',        ico:'🖥',  col:'#22d3a0',  svgKey:'pc'},
+  laptop:         {lbl:'筆記型電腦',       ico:'💻',  col:'#2dd4bf',  svgKey:'laptop'},
+  tablet:         {lbl:'平板電腦',         ico:'📱',  col:'#14b8a6'},
+  phone:          {lbl:'智慧手機',         ico:'📱',  col:'#0d9488'},
+  thin_client:    {lbl:'精簡型電腦',       ico:'🖥',  col:'#0f766e'},
+  workstation:    {lbl:'工程工作站',       ico:'💻',  col:'#06b6d4'},
+  kiosk:          {lbl:'自助服務機',       ico:'📟',  col:'#0891b2'},
+  // ERP/業務
+  erp_ding:       {lbl:'鼎新 ERP',        ico:'📦',  col:'#ef4444'},
+  erp_sap:        {lbl:'SAP ERP',         ico:'📊',  col:'#dc2626'},
+  erp_custom:     {lbl:'ERP 系統',        ico:'🗃',  col:'#b91c1c'},
+  pos_server:     {lbl:'POS 系統',        ico:'🧾',  col:'#e11d48'},
+  timesheet:      {lbl:'打卡系統',         ico:'⏱',  col:'#be123c'},
+  crm_server:     {lbl:'CRM 客戶管理',    ico:'👥',  col:'#9f1239'},
+  // 監控/稽核
+  nvr:            {lbl:'NVR 錄影主機',     ico:'📹',  col:'#f472b6'},
+  ip_cam:         {lbl:'IP 攝影機',        ico:'📷',  col:'#ec4899'},
+  siem:           {lbl:'SIEM 安全資訊',   ico:'📊',  col:'#db2777'},
+  nms:            {lbl:'NMS 網管系統',     ico:'🖥',  col:'#be185d'},
+  snmp_mgr:       {lbl:'SNMP 管理站',     ico:'📡',  col:'#9d174d'},
+  log_server:     {lbl:'Log 伺服器',      ico:'📋',  col:'#831843'},
+  soar:           {lbl:'SOAR 自動化',     ico:'🤖',  col:'#701a75'},
+  // 門禁
+  access_ctrl:    {lbl:'門禁主機',         ico:'🚪',  col:'#84cc16'},
+  card_reader:    {lbl:'感應讀卡機',       ico:'💳',  col:'#65a30d'},
+  biometric:      {lbl:'生物辨識機',       ico:'🔍',  col:'#4d7c0f'},
+  intercom:       {lbl:'對講機',           ico:'🔔',  col:'#3f6212'},
+  guard_tour:     {lbl:'巡邏系統',         ico:'🔑',  col:'#365314'},
+  // 列印
+  printer:        {lbl:'印表機',           ico:'🖨',  col:'#94a3b8'},
+  mfp:            {lbl:'多功能事務機',      ico:'🖨',  col:'#64748b'},
+  plotter:        {lbl:'繪圖機',           ico:'🗒',  col:'#475569'},
+  label_printer:  {lbl:'標籤印表機',       ico:'🏷',  col:'#334155'},
+  // IoT/工控
+  iot_hub:        {lbl:'IoT 閘道',         ico:'🔌',  col:'#c084fc'},
+  modbus:         {lbl:'Modbus RTU',       ico:'⚡',  col:'#a855f7'},
+  plc:            {lbl:'PLC 控制器',       ico:'🔧',  col:'#9333ea'},
+  hmi:            {lbl:'HMI 人機介面',     ico:'🎛',  col:'#7c3aed'},
+  smart_meter:    {lbl:'智慧電表',         ico:'⚡',  col:'#6d28d9'},
+  scada:          {lbl:'SCADA 系統',      ico:'📈',  col:'#5b21b6'},
+  // 通訊
+  pbx:            {lbl:'電話交換機 PBX',   ico:'☎',  col:'#4ade80'},
+  voip_phone:     {lbl:'VoIP 電話',        ico:'📞',  col:'#22c55e'},
+  voip_gw:        {lbl:'VoIP 閘道',        ico:'📠',  col:'#16a34a'},
+  video_conf:     {lbl:'視訊會議系統',      ico:'📹',  col:'#15803d'},
+  // 電源/機房
+  ups:            {lbl:'UPS 不斷電',       ico:'🔋',  col:'#facc15',  svgKey:'ups'},
+  pdu:            {lbl:'PDU 配電單元',      ico:'🔌',  col:'#eab308'},
+  kvm:            {lbl:'KVM 切換器',       ico:'🖥',  col:'#ca8a04'},
+  rack:           {lbl:'機架 Rack',        ico:'📦',  col:'#a16207'},
+  environment_sensor:{lbl:'環境感測器',    ico:'🌡',  col:'#854d0e'},
+};
+
+const CONN_TYPES = [
+  {id:'eth',    lbl:'乙太網路',     col:'rgba(45,156,254,0.9)',   dash:'',      arrow:true,  bw:'1Gbps'},
+  {id:'fiber',  lbl:'光纖',         col:'rgba(0,229,204,0.9)',    dash:'',      arrow:true,  bw:'10Gbps'},
+  {id:'wifi',   lbl:'Wi-Fi',        col:'rgba(168,85,247,0.9)',   dash:'7 3',   arrow:false, bw:'Wi-Fi 6'},
+  {id:'vpn',    lbl:'VPN 隧道',     col:'rgba(249,115,22,0.9)',   dash:'8 4',   arrow:true,  bw:'VPN'},
+  {id:'serial', lbl:'串列/WAN',     col:'rgba(239,68,68,0.9)',    dash:'4 3',   arrow:false, bw:'T1'},
+  {id:'vlan',   lbl:'VLAN 幹道',    col:'rgba(251,191,36,0.9)',   dash:'',      arrow:true,  bw:'Trunk'},
+  {id:'san',    lbl:'SAN/FC',       col:'rgba(244,114,182,0.9)', dash:'',       arrow:true,  bw:'8Gbps FC'},
+  {id:'power',  lbl:'電源連接',     col:'rgba(250,204,21,0.8)',   dash:'3 5',   arrow:false, bw:''},
+  {id:'manage', lbl:'管理頻道',     col:'rgba(34,211,160,0.9)',   dash:'5 3',   arrow:true,  bw:'OOB'},
+  {id:'ipsec',  lbl:'IPSec/GRE',   col:'rgba(251,113,133,0.9)',  dash:'6 2 2 2',arrow:true, bw:''},
+];
+
+const CONN_LABEL_TEMPLATES = [
+  {id:'eth',  labels:['1Gbps','10Gbps','100Mbps','Uplink']},
+  {id:'fiber',labels:['10Gbps','40Gbps','100Gbps','Single-mode']},
+  {id:'wifi', labels:['2.4GHz','5GHz','6GHz','Wi-Fi 6']},
+  {id:'vpn',  labels:['Site-to-Site','Remote Access','Split']},
+];
+
+const CHIP_COLORS = ['#2d9cfe','#00e5cc','#a855f7','#22d3a0','#f97316','#ef4444','#fbbf24','#f472b6','#60a5fa','#34d399','#fb923c','#c084fc'];
+
+// Templates
+const TOPOLOGY_TEMPLATES = [
+  // ── 規模型範本 ──
+  {
+    id:'scale10',name:'10 人小型辦公室',icon:'🏠',
+    desc:'10 人以下辦公室：路由器 + 交換器 + 基本端點',
+    category:'規模',
+    create(){
+      const ns=[
+        {type:'internet',x:300,y:10,label:'Internet',status:'online',color:'#38bdf8'},
+        {type:'router',x:300,y:110,label:'辦公路由器',ip:'192.168.1.1',status:'online',color:'#2d9cfe'},
+        {type:'switch',x:200,y:220,label:'辦公交換器',ip:'192.168.1.2',status:'online',color:'#00e5cc'},
+        {type:'ap',x:400,y:220,label:'無線 AP',ip:'192.168.1.3',status:'online',color:'#34d399'},
+        {type:'pc',x:80,y:330,label:'PC-01',ip:'192.168.1.101',status:'online',color:'#22d3a0'},
+        {type:'pc',x:190,y:330,label:'PC-02',ip:'192.168.1.102',status:'online',color:'#22d3a0'},
+        {type:'pc',x:300,y:330,label:'PC-03',ip:'192.168.1.103',status:'online',color:'#22d3a0'},
+        {type:'laptop',x:420,y:330,label:'筆電-01',ip:'192.168.1.111',status:'online',color:'#2dd4bf'},
+        {type:'laptop',x:530,y:330,label:'筆電-02',ip:'192.168.1.112',status:'online',color:'#2dd4bf'},
+        {type:'printer',x:640,y:220,label:'印表機',ip:'192.168.1.200',status:'online',color:'#94a3b8'},
+        {type:'nas',x:640,y:330,label:'NAS 共享',ip:'192.168.1.210',status:'online',color:'#fbbf24'},
+      ];
+      const conns=[[0,1,'eth'],[1,2,'eth'],[1,3,'wifi'],[2,4,'eth'],[2,5,'eth'],[2,6,'eth'],[3,7,'wifi'],[3,8,'wifi'],[2,9,'eth'],[2,10,'eth']];
+      const zones=[
+        {id:'zt1',x:50,y:190,w:400,h:180,label:'有線辦公區',note:'192.168.1.0/24',color:'#2d9cfe'},
+        {id:'zt2',x:390,y:190,w:280,h:180,label:'無線/週邊區',note:'SSID: Office',color:'#34d399'},
+      ];
+      return {ns,conns,zones};
+    }
+  },
+  {
+    id:'scale25',name:'25 人中小型企業',icon:'🏢',
+    desc:'25 人辦公室：防火牆 + 核心交換 + 多 VLAN',
+    category:'規模',
+    create(){
+      const ns=[
+        {type:'internet',x:370,y:10,label:'Internet',status:'online',color:'#38bdf8'},
+        {type:'firewall',x:370,y:110,label:'防火牆 FW-01',ip:'203.0.113.1',status:'online',color:'#f97316'},
+        {type:'l3switch',x:270,y:220,label:'核心三層交換',ip:'10.0.0.1',status:'online',color:'#00bcd4'},
+        {type:'switch',x:100,y:330,label:'辦公交換 SW-01',ip:'10.1.0.1',status:'online',color:'#00e5cc'},
+        {type:'switch',x:280,y:330,label:'IT交換 SW-02',ip:'10.1.0.2',status:'online',color:'#00e5cc'},
+        {type:'ap',x:470,y:330,label:'AP-01',ip:'10.2.0.1',status:'online',color:'#34d399'},
+        {type:'ap',x:570,y:330,label:'AP-02',ip:'10.2.0.2',status:'online',color:'#34d399'},
+        {type:'server',x:100,y:440,label:'檔案伺服器',ip:'10.3.0.10',status:'online',color:'#a855f7'},
+        {type:'dc_server',x:200,y:440,label:'AD/DC',ip:'10.3.0.11',status:'online',color:'#5b21b6'},
+        {type:'pc',x:300,y:440,label:'PC ×8',ip:'10.1.1.x',status:'online',color:'#22d3a0'},
+        {type:'laptop',x:420,y:440,label:'筆電 ×6',ip:'10.2.1.x',status:'online',color:'#2dd4bf'},
+        {type:'printer',x:540,y:440,label:'多功能事務機',ip:'10.1.5.1',status:'online',color:'#94a3b8'},
+        {type:'nas',x:640,y:330,label:'NAS 備份',ip:'10.3.0.20',status:'online',color:'#fbbf24'},
+        {type:'ups',x:640,y:440,label:'UPS 電源',status:'online',color:'#facc15'},
+      ];
+      const conns=[[0,1,'eth'],[1,2,'fiber'],[2,3,'eth'],[2,4,'eth'],[2,5,'wifi'],[2,6,'wifi'],[3,7,'eth'],[3,8,'eth'],[3,9,'eth'],[5,10,'wifi'],[3,11,'eth'],[2,12,'eth'],[2,13,'eth']];
+      const zones=[
+        {id:'zt1',x:70,y:300,w:250,h:180,label:'辦公 VLAN 10',note:'10.1.0.0/24',color:'#2d9cfe'},
+        {id:'zt2',x:70,y:410,w:250,h:80,label:'IT 伺服器 VLAN 30',note:'10.3.0.0/24',color:'#a855f7'},
+        {id:'zt3',x:440,y:300,w:200,h:180,label:'無線 VLAN 20',note:'10.2.0.0/24',color:'#34d399'},
+      ];
+      return {ns,conns,zones};
+    }
+  },
+  {
+    id:'scale50',name:'50 人中型企業',icon:'🏬',
+    desc:'50 人：雙防火牆 + 三層架構 + 完整區域劃分',
+    category:'規模',
+    create(){
+      const ns=[
+        {type:'internet',x:380,y:10,label:'Internet',status:'online',color:'#38bdf8'},
+        {type:'isp',x:180,y:10,label:'中華電信',status:'online',color:'#60a5fa'},
+        {type:'firewall',x:280,y:110,label:'主防火牆 FW-01',ip:'203.0.113.1',status:'online',color:'#f97316'},
+        {type:'firewall',x:480,y:110,label:'備援防火牆 FW-02',ip:'203.0.113.2',status:'warning',color:'#fb923c'},
+        {type:'l3switch',x:180,y:220,label:'核心 SW-C1',ip:'10.0.0.1',status:'online',color:'#00bcd4'},
+        {type:'l3switch',x:380,y:220,label:'核心 SW-C2',ip:'10.0.0.2',status:'online',color:'#00bcd4'},
+        {type:'switch',x:60,y:330,label:'辦公 SW-A1',ip:'10.1.0.1',status:'online',color:'#00e5cc'},
+        {type:'switch',x:180,y:330,label:'辦公 SW-A2',ip:'10.1.0.2',status:'online',color:'#00e5cc'},
+        {type:'switch',x:300,y:330,label:'IT機房 SW-A3',ip:'10.3.0.1',status:'online',color:'#2d9cfe'},
+        {type:'switch',x:420,y:330,label:'DMZ SW-A4',ip:'10.2.0.1',status:'online',color:'#f97316'},
+        {type:'wlc',x:540,y:330,label:'WLC 無線控制',ip:'10.4.0.1',status:'online',color:'#10b981'},
+        {type:'server',x:60,y:440,label:'AD/DC',ip:'10.3.0.10',status:'online',color:'#5b21b6'},
+        {type:'db_server',x:160,y:440,label:'DB Server',ip:'10.3.0.11',status:'online',color:'#7c3aed'},
+        {type:'erp_ding',x:260,y:440,label:'ERP Server',ip:'10.3.0.12',status:'online',color:'#ef4444'},
+        {type:'web_server',x:360,y:440,label:'Web Server',ip:'10.2.1.10',status:'online',color:'#9333ea'},
+        {type:'ap',x:480,y:440,label:'AP ×6',ip:'10.4.x.x',status:'online',color:'#34d399'},
+        {type:'pc',x:560,y:440,label:'PC ×20',ip:'10.1.1.x',status:'online',color:'#22d3a0'},
+        {type:'nas',x:460,y:220,label:'NAS 備份',ip:'10.3.0.50',status:'online',color:'#fbbf24'},
+        {type:'siem',x:560,y:220,label:'SIEM',ip:'10.3.0.60',status:'online',color:'#db2777'},
+        {type:'ups',x:660,y:330,label:'UPS ×2',status:'online',color:'#facc15'},
+      ];
+      const conns=[[0,2,'eth'],[1,2,'eth'],[2,4,'fiber'],[3,5,'fiber'],[4,5,'fiber'],[4,6,'eth'],[4,7,'eth'],[5,8,'eth'],[5,9,'eth'],[5,10,'eth'],[6,16,'eth'],[7,16,'eth'],[8,11,'eth'],[8,12,'eth'],[8,13,'eth'],[9,14,'eth'],[10,15,'wifi'],[5,17,'eth'],[5,18,'manage']];
+      const zones=[
+        {id:'zt1',x:30,y:300,w:230,h:180,label:'辦公 VLAN 10',note:'10.1.0.0/22',color:'#2d9cfe'},
+        {id:'zt2',x:30,y:410,w:440,h:80,label:'IT機房 VLAN 30',note:'10.3.0.0/24',color:'#a855f7'},
+        {id:'zt3',x:330,y:300,w:130,h:80,label:'DMZ VLAN 99',note:'10.2.0.0/28',color:'#f97316'},
+        {id:'zt4',x:450,y:300,w:230,h:80,label:'無線 VLAN 40',note:'10.4.0.0/22',color:'#34d399'},
+      ];
+      return {ns,conns,zones};
+    }
+  },
+  {
+    id:'scale150',name:'150 人中大型企業',icon:'🏭',
+    desc:'150 人：雙核心 + 分配層 + 完整 IT/OT/安全分區',
+    category:'規模',
+    create(){
+      const ns=[
+        {type:'internet',x:380,y:0,label:'Internet',status:'online',color:'#38bdf8'},
+        {type:'cloud_aws',x:560,y:0,label:'AWS Cloud',status:'online',color:'#fb923c'},
+        {type:'isp',x:200,y:0,label:'雙 ISP 備援',status:'online',color:'#60a5fa'},
+        {type:'firewall',x:280,y:100,label:'NGFW 主 FW-01',ip:'203.0.113.1',status:'online',color:'#f97316'},
+        {type:'ids',x:480,y:100,label:'IDS/IPS',status:'online',color:'#fb923c'},
+        {type:'l3switch',x:160,y:210,label:'核心 SW-C1',ip:'10.0.0.1',status:'online',color:'#00bcd4'},
+        {type:'l3switch',x:400,y:210,label:'核心 SW-C2',ip:'10.0.0.2',status:'online',color:'#00bcd4'},
+        {type:'l3switch',x:60,y:320,label:'分配 SW-D1',ip:'10.1.0.1',status:'online',color:'#38bdf8'},
+        {type:'l3switch',x:200,y:320,label:'分配 SW-D2',ip:'10.1.0.2',status:'online',color:'#38bdf8'},
+        {type:'l3switch',x:340,y:320,label:'分配 SW-D3',ip:'10.2.0.1',status:'online',color:'#38bdf8'},
+        {type:'l3switch',x:480,y:320,label:'分配 SW-D4 (IT機房)',ip:'10.3.0.1',status:'online',color:'#a855f7'},
+        {type:'switch',x:20,y:430,label:'樓層 SW F1',ip:'10.1.1.1',status:'online',color:'#00e5cc'},
+        {type:'switch',x:120,y:430,label:'樓層 SW F2',ip:'10.1.1.2',status:'online',color:'#00e5cc'},
+        {type:'switch',x:220,y:430,label:'樓層 SW F3',ip:'10.1.1.3',status:'online',color:'#00e5cc'},
+        {type:'switch',x:320,y:430,label:'樓層 SW F4',ip:'10.1.1.4',status:'online',color:'#00e5cc'},
+        {type:'wlc',x:420,y:430,label:'WLC 無線控制',ip:'10.4.0.1',status:'online',color:'#10b981'},
+        {type:'dc_server',x:500,y:430,label:'AD/DC ×2',ip:'10.3.0.10',status:'online',color:'#5b21b6'},
+        {type:'vm_host',x:580,y:430,label:'VM 叢集 ×4',ip:'10.3.0.20',status:'online',color:'#6d28d9'},
+        {type:'san',x:660,y:430,label:'SAN 儲存',ip:'10.3.0.30',status:'online',color:'#f59e0b'},
+        {type:'backup_server',x:660,y:320,label:'備份伺服器',ip:'10.3.0.40',status:'online',color:'#4f46e5'},
+        {type:'siem',x:560,y:210,label:'SIEM 安全平台',ip:'10.5.0.1',status:'online',color:'#db2777'},
+        {type:'nms',x:660,y:210,label:'NMS 網管',ip:'10.5.0.2',status:'online',color:'#be185d'},
+      ];
+      const conns=[[0,3,'eth'],[1,3,'fiber'],[2,3,'eth'],[3,4,'eth'],[3,5,'fiber'],[3,6,'fiber'],[5,6,'fiber'],[5,7,'eth'],[5,8,'eth'],[6,9,'eth'],[6,10,'eth'],[7,11,'eth'],[7,12,'eth'],[8,13,'eth'],[9,14,'eth'],[9,15,'wifi'],[10,16,'eth'],[10,17,'eth'],[10,18,'san'],[6,19,'eth'],[5,20,'manage'],[5,21,'manage']];
+      const zones=[
+        {id:'zt1',x:0,y:395,w:410,h:85,label:'辦公樓層 VLAN 10-19',note:'10.1.0.0/20',color:'#2d9cfe'},
+        {id:'zt2',x:460,y:395,w:250,h:85,label:'IT 機房 VLAN 30',note:'10.3.0.0/24',color:'#a855f7'},
+        {id:'zt3',x:400,y:395,w:80,h:85,label:'無線 VLAN 40',note:'10.4.0.0/22',color:'#34d399'},
+      ];
+      return {ns,conns,zones};
+    }
+  },
+  {
+    id:'scale500',name:'500 人大型企業',icon:'🏙',
+    desc:'500 人：雙核心冗餘 + 完整三層 + DC + 安全區',
+    category:'規模',
+    create(){
+      const ns=[
+        {type:'internet',x:350,y:0,label:'Internet',status:'online',color:'#38bdf8'},
+        {type:'cloud_aws',x:510,y:0,label:'AWS 公有雲',status:'online',color:'#fb923c'},
+        {type:'cloud_azure',x:660,y:0,label:'Azure 公有雲',status:'online',color:'#3b82f6'},
+        {type:'isp',x:190,y:0,label:'中華/遠傳雙 ISP',status:'online',color:'#60a5fa'},
+        {type:'firewall',x:250,y:100,label:'NGFW FW-01',ip:'203.0.113.1',status:'online',color:'#f97316'},
+        {type:'firewall',x:450,y:100,label:'NGFW FW-02 (備)',ip:'203.0.113.2',status:'online',color:'#fb923c'},
+        {type:'ids',x:350,y:100,label:'IDS/IPS',status:'online',color:'#fbbf24'},
+        {type:'l3switch',x:150,y:210,label:'核心 SW-C1',ip:'10.0.0.1',status:'online',color:'#00bcd4'},
+        {type:'l3switch',x:350,y:210,label:'核心 SW-C2',ip:'10.0.0.2',status:'online',color:'#00bcd4'},
+        {type:'router',x:550,y:210,label:'MPLS/SD-WAN 路由',ip:'10.0.0.3',status:'online',color:'#2d9cfe'},
+        {type:'l3switch',x:60,y:320,label:'分配 SW-D1 (辦公A棟)',ip:'10.1.0.1',status:'online',color:'#38bdf8'},
+        {type:'l3switch',x:190,y:320,label:'分配 SW-D2 (辦公B棟)',ip:'10.1.0.2',status:'online',color:'#38bdf8'},
+        {type:'l3switch',x:320,y:320,label:'分配 SW-D3 (生產)',ip:'10.2.0.1',status:'online',color:'#f97316'},
+        {type:'l3switch',x:450,y:320,label:'分配 SW-D4 (機房)',ip:'10.3.0.1',status:'online',color:'#a855f7'},
+        {type:'l3switch',x:580,y:320,label:'分配 SW-D5 (IoT/OT)',ip:'10.6.0.1',status:'online',color:'#c084fc'},
+        {type:'vm_host',x:60,y:430,label:'vSphere 叢集 ×6',ip:'10.3.0.10',status:'online',color:'#6d28d9'},
+        {type:'san',x:180,y:430,label:'SAN 儲存 ×2',ip:'10.3.0.20',status:'online',color:'#f59e0b'},
+        {type:'backup_server',x:300,y:430,label:'備份/容災',ip:'10.3.0.30',status:'online',color:'#4f46e5'},
+        {type:'siem',x:420,y:430,label:'SIEM/SOC 平台',ip:'10.5.0.1',status:'online',color:'#db2777'},
+        {type:'nms',x:540,y:430,label:'NMS 網管',ip:'10.5.0.2',status:'online',color:'#be185d'},
+        {type:'pam',x:660,y:430,label:'PAM 特權帳號',ip:'10.5.0.3',status:'online',color:'#b45309'},
+        {type:'erp_sap',x:660,y:320,label:'SAP ERP',ip:'10.3.1.10',status:'online',color:'#dc2626'},
+        {type:'wlc',x:660,y:210,label:'WLC 無線控制 ×2',ip:'10.4.0.1',status:'online',color:'#10b981'},
+      ];
+      const conns=[[0,4,'eth'],[1,4,'fiber'],[2,5,'fiber'],[3,4,'eth'],[4,5,'fiber'],[4,6,'eth'],[5,6,'eth'],[4,7,'fiber'],[5,8,'fiber'],[7,8,'fiber'],[8,9,'fiber'],[7,10,'eth'],[7,11,'eth'],[8,12,'eth'],[8,13,'eth'],[9,14,'eth'],[13,15,'eth'],[13,16,'san'],[13,17,'eth'],[13,18,'manage'],[8,19,'manage'],[8,20,'manage'],[13,21,'eth'],[8,22,'wifi']];
+      const zones=[
+        {id:'zt1',x:30,y:290,w:280,h:80,label:'辦公區 VLAN 10-19',note:'10.1.0.0/16',color:'#2d9cfe'},
+        {id:'zt2',x:30,y:400,w:390,h:80,label:'資料中心 VLAN 30',note:'10.3.0.0/22',color:'#a855f7'},
+        {id:'zt3',x:310,y:290,w:150,h:80,label:'生產/工控 VLAN 60',note:'10.2.0.0/24',color:'#f97316'},
+        {id:'zt4',x:400,y:400,w:280,h:80,label:'安全監控 VLAN 50',note:'10.5.0.0/24',color:'#db2777'},
+        {id:'zt5',x:550,y:290,w:120,h:80,label:'IoT/OT VLAN 70',note:'10.6.0.0/24',color:'#c084fc'},
+      ];
+      return {ns,conns,zones};
+    }
+  },
+  {
+    id:'scale1500',name:'1500 人集團企業',icon:'🌆',
+    desc:'1500 人：多園區 MPLS + 總部資料中心 + 分支',
+    category:'規模',
+    create(){
+      const ns=[
+        {type:'internet',x:400,y:0,label:'Internet Exchange',status:'online',color:'#38bdf8'},
+        {type:'cloud_aws',x:600,y:0,label:'AWS 公有雲',status:'online',color:'#fb923c'},
+        {type:'sd_wan',x:400,y:100,label:'SD-WAN 閘道',ip:'203.0.113.1',status:'online',color:'#bfdbfe'},
+        {type:'firewall',x:250,y:100,label:'NGFW 總部 FW',ip:'10.0.0.1',status:'online',color:'#f97316'},
+        {type:'l3switch',x:180,y:210,label:'總部核心 SW-C1',ip:'10.10.0.1',status:'online',color:'#00bcd4'},
+        {type:'l3switch',x:360,y:210,label:'總部核心 SW-C2',ip:'10.10.0.2',status:'online',color:'#00bcd4'},
+        {type:'vm_host',x:60,y:320,label:'總部 DC vSphere ×8',ip:'10.10.3.x',status:'online',color:'#6d28d9'},
+        {type:'san',x:180,y:320,label:'總部 SAN ×3',ip:'10.10.3.20',status:'online',color:'#f59e0b'},
+        {type:'erp_sap',x:300,y:320,label:'SAP ERP',ip:'10.10.3.30',status:'online',color:'#dc2626'},
+        {type:'siem',x:420,y:320,label:'集團 SIEM/SOC',ip:'10.10.5.1',status:'online',color:'#db2777'},
+        {type:'nms',x:520,y:320,label:'集團 NMS',ip:'10.10.5.2',status:'online',color:'#be185d'},
+        // Branch offices
+        {type:'router',x:60,y:440,label:'台北分公司 VPN',ip:'10.20.0.1',status:'online',color:'#2d9cfe'},
+        {type:'router',x:200,y:440,label:'高雄分公司 VPN',ip:'10.30.0.1',status:'online',color:'#2d9cfe'},
+        {type:'router',x:340,y:440,label:'台中分公司 VPN',ip:'10.40.0.1',status:'online',color:'#2d9cfe'},
+        {type:'router',x:480,y:440,label:'新竹分公司 VPN',ip:'10.50.0.1',status:'online',color:'#2d9cfe'},
+        {type:'switch',x:60,y:550,label:'台北 SW ×3',ip:'10.20.1.1',status:'online',color:'#00e5cc'},
+        {type:'switch',x:200,y:550,label:'高雄 SW ×2',ip:'10.30.1.1',status:'online',color:'#00e5cc'},
+        {type:'switch',x:340,y:550,label:'台中 SW ×2',ip:'10.40.1.1',status:'online',color:'#00e5cc'},
+        {type:'switch',x:480,y:550,label:'新竹 SW',ip:'10.50.1.1',status:'online',color:'#00e5cc'},
+        {type:'backup_server',x:620,y:320,label:'容災備援中心',ip:'10.10.4.1',status:'online',color:'#4f46e5'},
+      ];
+      const conns=[[0,2,'fiber'],[1,2,'fiber'],[2,3,'fiber'],[3,4,'fiber'],[4,5,'fiber'],[4,6,'eth'],[4,7,'san'],[4,8,'eth'],[5,9,'manage'],[5,10,'manage'],[2,11,'vpn'],[2,12,'vpn'],[2,13,'vpn'],[2,14,'vpn'],[11,15,'eth'],[12,16,'eth'],[13,17,'eth'],[14,18,'eth'],[5,19,'eth']];
+      const zones=[
+        {id:'zt1',x:30,y:280,w:320,h:90,label:'總部資料中心 DC',note:'10.10.0.0/16',color:'#a855f7'},
+        {id:'zt2',x:370,y:280,w:270,h:90,label:'安全/監控 SOC',note:'10.10.5.0/24',color:'#db2777'},
+        {id:'zt3',x:30,y:410,w:540,h:200,label:'分支機構 (VPN 隧道)',note:'MPLS/SD-WAN',color:'#2d9cfe'},
+      ];
+      return {ns,conns,zones};
+    }
+  },
+  {
+    id:'scale5000',name:'5000 人大型集團',icon:'🌐',
+    desc:'5000 人：多資料中心 + 全球 SD-WAN + 混合雲',
+    category:'規模',
+    create(){
+      const ns=[
+        {type:'internet',x:400,y:0,label:'Global Internet',status:'online',color:'#38bdf8'},
+        {type:'cloud_aws',x:580,y:0,label:'AWS 多區域',status:'online',color:'#fb923c'},
+        {type:'cloud_azure',x:720,y:0,label:'Azure 混合雲',status:'online',color:'#3b82f6'},
+        {type:'cloud_gcp',x:860,y:0,label:'GCP 備援',status:'online',color:'#34d399'},
+        {type:'sd_wan',x:400,y:100,label:'SD-WAN 全球閘道',ip:'0.0.0.0',status:'online',color:'#bfdbfe'},
+        {type:'firewall',x:230,y:100,label:'總部 NGFW ×2 (HA)',ip:'203.0.113.1',status:'online',color:'#f97316'},
+        {type:'l3switch',x:180,y:210,label:'總部核心 SW-C1',ip:'10.0.0.1',status:'online',color:'#00bcd4'},
+        {type:'l3switch',x:360,y:210,label:'總部核心 SW-C2',ip:'10.0.0.2',status:'online',color:'#00bcd4'},
+        {type:'vm_host',x:60,y:320,label:'主 DC vSphere ×12',ip:'10.0.3.x',status:'online',color:'#6d28d9'},
+        {type:'san',x:180,y:320,label:'主 DC SAN/NVMe ×4',ip:'10.0.3.20',status:'online',color:'#f59e0b'},
+        {type:'vm_host',x:480,y:320,label:'DR 資料中心 ×6',ip:'10.99.3.x',status:'online',color:'#4f46e5'},
+        {type:'san',x:600,y:320,label:'DR SAN ×2',ip:'10.99.3.20',status:'online',color:'#d97706'},
+        {type:'erp_sap',x:300,y:320,label:'SAP S/4HANA',ip:'10.0.3.30',status:'online',color:'#dc2626'},
+        {type:'siem',x:720,y:210,label:'集團 SIEM/XDR',ip:'10.0.5.1',status:'online',color:'#db2777'},
+        {type:'pam',x:840,y:210,label:'PAM 零信任',ip:'10.0.5.5',status:'online',color:'#b45309'},
+        {type:'router',x:60,y:440,label:'海外 HK 辦公室',ip:'172.16.10.1',status:'online',color:'#2d9cfe'},
+        {type:'router',x:200,y:440,label:'海外 SG 辦公室',ip:'172.16.20.1',status:'online',color:'#2d9cfe'},
+        {type:'router',x:340,y:440,label:'海外 JP 辦公室',ip:'172.16.30.1',status:'online',color:'#2d9cfe'},
+        {type:'router',x:480,y:440,label:'海外 US 辦公室',ip:'172.16.40.1',status:'online',color:'#2d9cfe'},
+        {type:'router',x:620,y:440,label:'國內台北分公司',ip:'10.20.0.1',status:'online',color:'#00e5cc'},
+        {type:'router',x:760,y:440,label:'國內高雄分公司',ip:'10.30.0.1',status:'online',color:'#00e5cc'},
+      ];
+      const conns=[[0,4,'fiber'],[1,4,'fiber'],[2,4,'fiber'],[3,4,'fiber'],[4,5,'fiber'],[5,6,'fiber'],[6,7,'fiber'],[6,8,'eth'],[6,9,'san'],[7,10,'fiber'],[7,11,'san'],[6,12,'eth'],[7,13,'manage'],[7,14,'manage'],[4,15,'sd_wan'],[4,16,'sd_wan'],[4,17,'sd_wan'],[4,18,'sd_wan'],[4,19,'vpn'],[4,20,'vpn'],[8,10,'san']];
+      const zones=[
+        {id:'zt1',x:30,y:280,w:360,h:90,label:'主資料中心 (台灣)',note:'10.0.0.0/8',color:'#a855f7'},
+        {id:'zt2',x:450,y:280,w:200,h:90,label:'DR 容災中心',note:'10.99.0.0/16',color:'#4f46e5'},
+        {id:'zt3',x:30,y:410,w:660,h:90,label:'海外/分支辦公室 (SD-WAN)',note:'172.16.0.0/12',color:'#2d9cfe'},
+        {id:'zt4',x:690,y:410,w:170,h:90,label:'國內分公司 (VPN)',note:'10.20-30.0.0/22',color:'#34d399'},
+      ];
+      return {ns,conns,zones};
+    }
+  },
+  // ── 架構型範本 ──
+  {
+    id:'dmz',name:'DMZ 三區架構',icon:'🏰',
+    desc:'Internet → Firewall → DMZ / Internal',
+    category:'架構',
+    create(){
+      const ns=[
+        {type:'internet',x:300,y:20,label:'Internet',status:'online',color:'#38bdf8'},
+        {type:'firewall',x:300,y:130,label:'防火牆 FW-01',ip:'203.0.113.1',status:'online',color:'#f97316'},
+        {type:'switch',x:140,y:240,label:'DMZ 交換器',ip:'10.2.0.1',status:'online',color:'#00e5cc'},
+        {type:'switch',x:460,y:240,label:'內部交換器',ip:'10.1.0.1',status:'online',color:'#2d9cfe'},
+        {type:'web_server',x:60,y:350,label:'Web Server',ip:'10.2.1.10',status:'online',color:'#9333ea'},
+        {type:'mail_server',x:200,y:350,label:'Mail Server',ip:'10.2.1.11',status:'online',color:'#7c3aed'},
+        {type:'server',x:380,y:350,label:'應用伺服器',ip:'10.1.1.10',status:'online',color:'#a855f7'},
+        {type:'db_server',x:520,y:350,label:'DB Server',ip:'10.1.1.20',status:'online',color:'#7c3aed'},
+      ];
+      const conns=[[0,1,'eth'],[1,2,'fiber'],[1,3,'fiber'],[2,4,'eth'],[2,5,'eth'],[3,6,'eth'],[3,7,'eth']];
+      const zones=[
+        {id:'zt1',x:30,y:310,w:230,h:100,label:'DMZ 區域',note:'VLAN 99',color:'#f97316'},
+        {id:'zt2',x:350,y:310,w:220,h:100,label:'內部網路',note:'VLAN 10',color:'#2d9cfe'},
+      ];
+      return {ns,conns,zones};
+    }
+  },
+  {
+    id:'hierar',name:'三層交換架構',icon:'🏗',
+    desc:'Core → Distribution → Access Layer',
+    category:'架構',
+    create(){
+      const ns=[
+        {type:'router',x:300,y:20,label:'核心路由器',ip:'10.0.0.1',status:'online',color:'#2d9cfe'},
+        {type:'l3switch',x:140,y:130,label:'分配層 SW-D1',ip:'10.1.0.1',status:'online',color:'#00bcd4'},
+        {type:'l3switch',x:460,y:130,label:'分配層 SW-D2',ip:'10.1.0.2',status:'online',color:'#00bcd4'},
+        {type:'switch',x:60,y:240,label:'接取層 SW-A1',ip:'10.1.1.1',status:'online',color:'#00e5cc'},
+        {type:'switch',x:200,y:240,label:'接取層 SW-A2',ip:'10.1.1.2',status:'online',color:'#00e5cc'},
+        {type:'switch',x:380,y:240,label:'接取層 SW-A3',ip:'10.1.1.3',status:'online',color:'#00e5cc'},
+        {type:'switch',x:520,y:240,label:'接取層 SW-A4',ip:'10.1.1.4',status:'online',color:'#00e5cc'},
+      ];
+      const conns=[[0,1,'fiber'],[0,2,'fiber'],[1,3,'eth'],[1,4,'eth'],[2,5,'eth'],[2,6,'eth']];
+      return {ns,conns,zones:[]};
+    }
+  },
+  {
+    id:'soc',name:'SOC 安全監控架構',icon:'🔐',
+    desc:'含 SIEM/IDS/防火牆的資安監控架構',
+    category:'架構',
+    create(){
+      const ns=[
+        {type:'internet',x:300,y:10,label:'Internet',status:'online',color:'#38bdf8'},
+        {type:'ids',x:180,y:110,label:'IDS/IPS',ip:'10.0.0.5',status:'online',color:'#fb923c'},
+        {type:'firewall',x:300,y:110,label:'NGFW',ip:'203.0.113.1',status:'online',color:'#f97316'},
+        {type:'waf',x:420,y:110,label:'WAF',ip:'10.0.0.6',status:'online',color:'#fbbf24'},
+        {type:'switch',x:300,y:220,label:'核心交換器',ip:'10.1.0.1',status:'online',color:'#2d9cfe'},
+        {type:'siem',x:140,y:330,label:'SIEM 平台',ip:'10.1.2.1',status:'online',color:'#db2777'},
+        {type:'log_server',x:260,y:330,label:'Log 伺服器',ip:'10.1.2.2',status:'online',color:'#831843'},
+        {type:'nms',x:380,y:330,label:'NMS 網管',ip:'10.1.2.3',status:'online',color:'#be185d'},
+        {type:'soar',x:500,y:330,label:'SOAR 平台',ip:'10.1.2.4',status:'online',color:'#701a75'},
+      ];
+      const conns=[[0,2,'eth'],[0,1,'eth'],[2,3,'eth'],[2,4,'fiber'],[4,5,'manage'],[4,6,'manage'],[4,7,'manage'],[4,8,'manage']];
+      return {ns,conns,zones:[]};
+    }
+  },
+  // ── 海外/跨國架構 ──
+  {
+    id:'overseas_hq',name:'海外跨國總部架構',icon:'🌍',
+    desc:'台灣總部 + 亞太各國分支 (MPLS/SD-WAN)',
+    category:'海外',
+    create(){
+      const ns=[
+        // 台灣總部
+        {type:'internet',x:350,y:0,label:'Taiwan Internet',status:'online',color:'#38bdf8'},
+        {type:'firewall',x:250,y:100,label:'台灣總部 NGFW',ip:'203.0.113.1',status:'online',color:'#f97316'},
+        {type:'sd_wan',x:450,y:100,label:'SD-WAN Hub',ip:'10.0.0.1',status:'online',color:'#bfdbfe'},
+        {type:'l3switch',x:250,y:210,label:'總部核心 SW',ip:'10.10.0.1',status:'online',color:'#00bcd4'},
+        {type:'vm_host',x:120,y:320,label:'總部 DC vSphere',ip:'10.10.3.x',status:'online',color:'#6d28d9'},
+        {type:'erp_sap',x:260,y:320,label:'ERP/SAP',ip:'10.10.3.30',status:'online',color:'#dc2626'},
+        {type:'backup_server',x:390,y:320,label:'容災備援',ip:'10.10.4.1',status:'online',color:'#4f46e5'},
+        // 海外分支
+        {type:'router',x:60,y:440,label:'香港 HK Branch',ip:'172.16.10.1',status:'online',color:'#2d9cfe'},
+        {type:'router',x:190,y:440,label:'新加坡 SG Branch',ip:'172.16.20.1',status:'online',color:'#2d9cfe'},
+        {type:'router',x:320,y:440,label:'日本 JP Branch',ip:'172.16.30.1',status:'online',color:'#2d9cfe'},
+        {type:'router',x:450,y:440,label:'美國 US Branch',ip:'172.16.40.1',status:'online',color:'#2d9cfe'},
+        {type:'router',x:580,y:440,label:'歐洲 EU Branch',ip:'172.16.50.1',status:'online',color:'#2d9cfe'},
+        {type:'switch',x:60,y:550,label:'HK 辦公室 SW',ip:'172.16.10.2',status:'online',color:'#00e5cc'},
+        {type:'switch',x:190,y:550,label:'SG 辦公室 SW',ip:'172.16.20.2',status:'online',color:'#00e5cc'},
+        {type:'switch',x:320,y:550,label:'JP 辦公室 SW',ip:'172.16.30.2',status:'online',color:'#00e5cc'},
+        {type:'switch',x:450,y:550,label:'US 辦公室 SW',ip:'172.16.40.2',status:'online',color:'#00e5cc'},
+        {type:'cloud_aws',x:600,y:210,label:'AWS 全球加速',status:'online',color:'#fb923c'},
+      ];
+      const conns=[[0,1,'eth'],[0,2,'fiber'],[1,3,'fiber'],[2,3,'fiber'],[3,4,'eth'],[3,5,'eth'],[3,6,'eth'],[2,7,'sd_wan'],[2,8,'sd_wan'],[2,9,'sd_wan'],[2,10,'sd_wan'],[2,11,'sd_wan'],[7,12,'eth'],[8,13,'eth'],[9,14,'eth'],[10,15,'eth'],[2,16,'fiber']];
+      const zones=[
+        {id:'zt1',x:80,y:280,w:370,h:90,label:'台灣總部 DC',note:'10.10.0.0/16',color:'#a855f7'},
+        {id:'zt2',x:30,y:410,w:620,h:200,label:'海外分支辦公室 (SD-WAN VPN)',note:'172.16.0.0/12',color:'#2d9cfe'},
+      ];
+      return {ns,conns,zones};
+    }
+  },
+  {
+    id:'overseas_retail',name:'跨國零售/連鎖架構',icon:'🛒',
+    desc:'總部 + 海外門市 + POS + 集中管理',
+    category:'海外',
+    create(){
+      const ns=[
+        {type:'internet',x:350,y:0,label:'Internet/MPLS',status:'online',color:'#38bdf8'},
+        {type:'firewall',x:250,y:100,label:'總部防火牆',ip:'203.0.113.1',status:'online',color:'#f97316'},
+        {type:'l3switch',x:250,y:210,label:'總部核心 SW',ip:'10.0.0.1',status:'online',color:'#00bcd4'},
+        {type:'erp_ding',x:100,y:310,label:'ERP 系統',ip:'10.0.1.10',status:'online',color:'#ef4444'},
+        {type:'pos_server',x:230,y:310,label:'POS 中央管理',ip:'10.0.1.20',status:'online',color:'#e11d48'},
+        {type:'db_server',x:360,y:310,label:'資料倉儲 DB',ip:'10.0.1.30',status:'online',color:'#7c3aed'},
+        {type:'nms',x:490,y:310,label:'集中 NMS',ip:'10.0.2.1',status:'online',color:'#be185d'},
+        // 門市
+        {type:'router',x:50,y:430,label:'台北門市-01',ip:'10.10.1.1',status:'online',color:'#2d9cfe'},
+        {type:'router',x:170,y:430,label:'台中門市-02',ip:'10.10.2.1',status:'online',color:'#2d9cfe'},
+        {type:'router',x:290,y:430,label:'高雄門市-03',ip:'10.10.3.1',status:'online',color:'#2d9cfe'},
+        {type:'router',x:410,y:430,label:'HK 門市-04',ip:'10.20.1.1',status:'online',color:'#60a5fa'},
+        {type:'router',x:530,y:430,label:'SG 門市-05',ip:'10.20.2.1',status:'online',color:'#60a5fa'},
+        {type:'pos_server',x:50,y:540,label:'POS ×3',ip:'10.10.1.x',status:'online',color:'#e11d48'},
+        {type:'pos_server',x:170,y:540,label:'POS ×2',ip:'10.10.2.x',status:'online',color:'#e11d48'},
+        {type:'pos_server',x:290,y:540,label:'POS ×4',ip:'10.10.3.x',status:'online',color:'#e11d48'},
+        {type:'pos_server',x:410,y:540,label:'POS ×2',ip:'10.20.1.x',status:'online',color:'#e11d48'},
+        {type:'pos_server',x:530,y:540,label:'POS ×2',ip:'10.20.2.x',status:'online',color:'#e11d48'},
+        {type:'ap',x:620,y:430,label:'門市 Wi-Fi AP',ip:'各門市',status:'online',color:'#34d399'},
+      ];
+      const conns=[[0,1,'eth'],[1,2,'fiber'],[2,3,'eth'],[2,4,'eth'],[2,5,'eth'],[2,6,'manage'],[0,7,'vpn'],[0,8,'vpn'],[0,9,'vpn'],[0,10,'vpn'],[0,11,'vpn'],[7,12,'eth'],[8,13,'eth'],[9,14,'eth'],[10,15,'eth'],[11,16,'eth'],[7,17,'wifi']];
+      const zones=[
+        {id:'zt1',x:60,y:270,w:480,h:90,label:'總部伺服器區',note:'10.0.0.0/16',color:'#a855f7'},
+        {id:'zt2',x:20,y:400,w:380,h:200,label:'國內門市 (VPN)',note:'10.10.0.0/16',color:'#2d9cfe'},
+        {id:'zt3',x:380,y:400,w:250,h:200,label:'海外門市 (MPLS)',note:'10.20.0.0/16',color:'#60a5fa'},
+      ];
+      return {ns,conns,zones};
+    }
+  },
+  {
+    id:'overseas_mfg',name:'海外製造業架構',icon:'🏭',
+    desc:'總廠 + 海外工廠 + OT/IT 分隔 + SCADA',
+    category:'海外',
+    create(){
+      const ns=[
+        {type:'internet',x:350,y:0,label:'WAN/MPLS',status:'online',color:'#38bdf8'},
+        {type:'firewall',x:250,y:100,label:'IT/OT 隔離 FW',ip:'10.0.0.1',status:'online',color:'#f97316'},
+        {type:'l3switch',x:150,y:210,label:'IT 核心 SW',ip:'10.1.0.1',status:'online',color:'#00bcd4'},
+        {type:'l3switch',x:350,y:210,label:'OT 核心 SW',ip:'10.2.0.1',status:'online',color:'#c084fc'},
+        {type:'erp_sap',x:60,y:320,label:'SAP ERP',ip:'10.1.1.10',status:'online',color:'#dc2626'},
+        {type:'vm_host',x:180,y:320,label:'IT 應用伺服器',ip:'10.1.1.20',status:'online',color:'#6d28d9'},
+        {type:'scada',x:280,y:320,label:'SCADA 系統',ip:'10.2.1.10',status:'online',color:'#5b21b6'},
+        {type:'plc',x:400,y:320,label:'PLC 控制器 ×6',ip:'10.2.2.x',status:'online',color:'#9333ea'},
+        {type:'hmi',x:510,y:320,label:'HMI 人機介面',ip:'10.2.3.x',status:'online',color:'#7c3aed'},
+        {type:'nvr',x:60,y:430,label:'廠區 NVR 監控',ip:'10.1.4.1',status:'online',color:'#f472b6'},
+        // 海外工廠
+        {type:'router',x:150,y:430,label:'越南工廠 VPN',ip:'172.16.10.1',status:'online',color:'#2d9cfe'},
+        {type:'router',x:290,y:430,label:'泰國工廠 VPN',ip:'172.16.20.1',status:'online',color:'#2d9cfe'},
+        {type:'router',x:430,y:430,label:'印尼工廠 VPN',ip:'172.16.30.1',status:'online',color:'#2d9cfe'},
+        {type:'plc',x:150,y:540,label:'越南 PLC ×4',ip:'172.16.10.x',status:'online',color:'#9333ea'},
+        {type:'plc',x:290,y:540,label:'泰國 PLC ×4',ip:'172.16.20.x',status:'online',color:'#9333ea'},
+        {type:'plc',x:430,y:540,label:'印尼 PLC ×3',ip:'172.16.30.x',status:'online',color:'#9333ea'},
+        {type:'siem',x:560,y:210,label:'OT/IT SIEM',ip:'10.5.0.1',status:'online',color:'#db2777'},
+      ];
+      const conns=[[0,1,'eth'],[1,2,'fiber'],[1,3,'fiber'],[2,4,'eth'],[2,5,'eth'],[3,6,'eth'],[3,7,'eth'],[3,8,'eth'],[2,9,'eth'],[0,10,'vpn'],[0,11,'vpn'],[0,12,'vpn'],[10,13,'eth'],[11,14,'eth'],[12,15,'eth'],[2,16,'manage']];
+      const zones=[
+        {id:'zt1',x:30,y:280,w:250,h:90,label:'IT 區域',note:'10.1.0.0/16',color:'#2d9cfe'},
+        {id:'zt2',x:260,y:280,w:310,h:90,label:'OT/工控區域',note:'10.2.0.0/16',color:'#c084fc'},
+        {id:'zt3',x:120,y:400,w:380,h:200,label:'海外工廠 (VPN)',note:'172.16.0.0/12',color:'#34d399'},
+      ];
+      return {ns,conns,zones};
+    }
+  },
+  // ── 雲端架構 ──
+  {
+    id:'hybrid_cloud',name:'混合雲架構',icon:'☁',
+    desc:'地端資料中心 + AWS + Azure 混合架構',
+    category:'雲端',
+    create(){
+      const ns=[
+        {type:'internet',x:350,y:0,label:'Internet',status:'online',color:'#38bdf8'},
+        {type:'firewall',x:200,y:100,label:'邊界防火牆',ip:'203.0.113.1',status:'online',color:'#f97316'},
+        {type:'router',x:380,y:100,label:'雲端連接路由器',ip:'10.0.0.1',status:'online',color:'#2d9cfe'},
+        {type:'cloud_aws',x:520,y:100,label:'AWS VPC',status:'online',color:'#fb923c'},
+        {type:'cloud_azure',x:660,y:100,label:'Azure VNet',status:'online',color:'#3b82f6'},
+        {type:'l3switch',x:200,y:210,label:'地端核心 SW',ip:'10.10.0.1',status:'online',color:'#00bcd4'},
+        {type:'vm_host',x:80,y:320,label:'vSphere 叢集',ip:'10.10.1.x',status:'online',color:'#6d28d9'},
+        {type:'san',x:200,y:320,label:'SAN 儲存',ip:'10.10.2.1',status:'online',color:'#f59e0b'},
+        {type:'backup_server',x:320,y:320,label:'備份 / 容災',ip:'10.10.3.1',status:'online',color:'#4f46e5'},
+        {type:'web_server',x:520,y:210,label:'AWS EC2 Web',ip:'10.100.1.10',status:'online',color:'#9333ea'},
+        {type:'db_server',x:620,y:210,label:'AWS RDS DB',ip:'10.100.2.10',status:'online',color:'#7c3aed'},
+        {type:'app_server',x:660,y:320,label:'Azure App Service',ip:'10.200.1.x',status:'online',color:'#7c3aed'},
+        {type:'siem',x:440,y:320,label:'雲端 SIEM',ip:'10.150.0.1',status:'online',color:'#db2777'},
+      ];
+      const conns=[[0,1,'eth'],[0,2,'fiber'],[1,5,'fiber'],[2,3,'fiber'],[2,4,'fiber'],[5,6,'eth'],[5,7,'san'],[5,8,'eth'],[3,9,'fiber'],[3,10,'fiber'],[4,11,'fiber'],[2,12,'manage'],[1,12,'manage']];
+      const zones=[
+        {id:'zt1',x:50,y:280,w:330,h:90,label:'地端資料中心',note:'10.10.0.0/16',color:'#a855f7'},
+        {id:'zt2',x:490,y:170,w:180,h:90,label:'AWS 公有雲',note:'10.100.0.0/16',color:'#fb923c'},
+        {id:'zt3',x:630,y:280,w:130,h:90,label:'Azure 公有雲',note:'10.200.0.0/16',color:'#3b82f6'},
+      ];
+      return {ns,conns,zones};
+    }
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════
+let S = {
+  nodes:[],conns:[],zones:[],labels:[],
+  selIds:[],
+  tool:'select',
+  connType:'eth',
+  zoom:1, pan:{x:60,y:40},
+  drag:null,
+  panning:false,
+  lastMouse:null,
+  connecting:null,
+  rubberBand:null,
+  zoneDraw:null,
+  labelPending:null,
+  history:[],future:[],
+  projects:[], activeProj:null,
+  nc:0,
+  showGrid:true,
+  customDevices:[],
+  dirty:false,
+};
+
+const NS='http://www.w3.org/2000/svg';
+let svgEl, nodesG, connsG, zonesG, labelsG, prevPath;
+
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded',()=>{
+  svgEl=document.getElementById('svg');
+  buildSVGStructure();
+  buildPalette();
+  buildConnList();
+  buildLegend();
+  buildChips('cd-colors');
+  buildChips('z-colors');
+  buildChips('lbl-colors');
+  buildTemplateList();
+  setupSVGEvents();
+  loadStorage();
+  if(S.projects.length===0) createDefaultProject();
+  updateZoomVal();
+  renderAll();
+  updateRpPanel();
+  updateProjList();
+  document.addEventListener('keydown', onKey);
+  window.addEventListener('resize',()=>renderAll());
+  setInterval(()=>{if(S.dirty){saveStorage();S.dirty=false;setSaveDot(false);}},5000);
+  setTimeout(()=>notify('✓','NetTopology Pro 已就緒'),400);
+  updateUndoRedoBtns();
+});
+
+function buildSVGStructure(){
+  svgEl.innerHTML='';
+  const defs=mkSVG('defs');
+  // Arrow markers (multi-color)
+  [['blue','rgba(45,156,254,0.85)'],['cyan','rgba(0,229,204,0.85)'],
+   ['purple','rgba(168,85,247,0.85)'],['orange','rgba(249,115,22,0.85)'],
+   ['red','rgba(239,68,68,0.85)'],['yellow','rgba(251,191,36,0.85)'],
+   ['pink','rgba(244,114,182,0.85)'],['green','rgba(34,211,160,0.85)'],
+   ['rose','rgba(251,113,133,0.85)']
+  ].forEach(([name,fill])=>{
+    const m=mkSVG('marker');
+    m.setAttribute('id','arr-'+name);
+    m.setAttribute('markerWidth','8');m.setAttribute('markerHeight','8');
+    m.setAttribute('refX','6');m.setAttribute('refY','3');m.setAttribute('orient','auto');
+    const p=mkSVG('path');p.setAttribute('d','M0,0 L0,6 L8,3 z');p.setAttribute('fill',fill);
+    m.appendChild(p);defs.appendChild(m);
+    // bi-directional start
+    const ms=mkSVG('marker');
+    ms.setAttribute('id','arrs-'+name);
+    ms.setAttribute('markerWidth','8');ms.setAttribute('markerHeight','8');
+    ms.setAttribute('refX','2');ms.setAttribute('refY','3');ms.setAttribute('orient','auto-start-reverse');
+    const ps=mkSVG('path');ps.setAttribute('d','M0,3 L8,0 L8,6 z');ps.setAttribute('fill',fill);
+    ms.appendChild(ps);defs.appendChild(ms);
+  });
+  // Glow filter
+  const f=mkSVG('filter');f.setAttribute('id','glow');
+  f.setAttribute('x','-20%');f.setAttribute('y','-20%');
+  f.setAttribute('width','140%');f.setAttribute('height','140%');
+  const blur=mkSVG('feGaussianBlur');blur.setAttribute('stdDeviation','3.5');blur.setAttribute('result','b');
+  const merge=mkSVG('feMerge');
+  const mn1=mkSVG('feMergeNode');mn1.setAttribute('in','b');
+  const mn2=mkSVG('feMergeNode');mn2.setAttribute('in','SourceGraphic');
+  merge.appendChild(mn1);merge.appendChild(mn2);
+  f.appendChild(blur);f.appendChild(merge);defs.appendChild(f);
+  svgEl.appendChild(defs);
+
+  zonesG=mkSVG('g');zonesG.id='zones-g';svgEl.appendChild(zonesG);
+  labelsG=mkSVG('g');labelsG.id='labels-g';svgEl.appendChild(labelsG);
+  connsG=mkSVG('g');connsG.id='conns-g';svgEl.appendChild(connsG);
+  nodesG=mkSVG('g');nodesG.id='nodes-g';svgEl.appendChild(nodesG);
+  prevPath=mkSVG('path');prevPath.id='prev-path';
+  prevPath.setAttribute('fill','none');
+  prevPath.setAttribute('stroke','rgba(0,229,204,0.7)');
+  prevPath.setAttribute('stroke-width','2');
+  prevPath.setAttribute('stroke-dasharray','8 4');
+  prevPath.setAttribute('pointer-events','none');
+  prevPath.style.display='none';
+  svgEl.appendChild(prevPath);
+}
+
+function mkSVG(tag){return document.createElementNS(NS,tag)}
+
+// ═══════════════════════════════════════════════════════════════
+//  BUILD PALETTE — with enhanced icons
+// ═══════════════════════════════════════════════════════════════
+function buildPalette(){
+  const container=document.getElementById('dev-palette');
+  container.innerHTML='';
+  const addCustomBtn=document.createElement('div');
+  addCustomBtn.style.cssText='padding:5px 4px;margin-bottom:2px';
+  addCustomBtn.innerHTML=`<button class="btn-ghost" style="width:100%;font-size:10px;padding:6px" onclick="openCustomDevModal()">＋ 自定義裝置</button>`;
+  container.appendChild(addCustomBtn);
+  Object.entries(DEVICE_CATS).forEach(([cat,types])=>{
+    const section=document.createElement('div');
+    const title=document.createElement('div');
+    title.className='sb-section-title';title.textContent=cat;
+    section.appendChild(title);
+    const grid=document.createElement('div');grid.className='dev-grid';
+    types.forEach(t=>{if(DEVICES[t])grid.appendChild(makeDevItem(t,DEVICES[t]))});
+    section.appendChild(grid);container.appendChild(section);
+  });
+  renderCustomDevices(container);
+}
+
+function renderCustomDevices(container){
+  if(!container)container=document.getElementById('dev-palette');
+  const existing=document.getElementById('custom-dev-section');
+  if(existing)existing.remove();
+  if(S.customDevices.length===0)return;
+  const section=document.createElement('div');section.id='custom-dev-section';
+  const title=document.createElement('div');title.className='sb-section-title';title.textContent='自訂裝置';
+  section.appendChild(title);
+  const grid=document.createElement('div');grid.className='dev-grid';
+  S.customDevices.forEach(d=>grid.appendChild(makeDevItem('custom_'+d.id,d)));
+  section.appendChild(grid);container.appendChild(section);
+}
+
+function renderDevIcon(devDef, colorHex){
+  const svgKey=devDef.svgKey;
+  if(svgKey&&DEVICE_SVG_ICONS[svgKey]){
+    // Use SVG icon with device color
+    return`<div class="dev-ico" style="background:${colorHex}1a;color:${colorHex}">${DEVICE_SVG_ICONS[svgKey]}</div>`;
+  }
+  return`<div class="dev-ico" style="background:${colorHex}22"><span class="ico-emoji">${devDef.ico}</span></div>`;
+}
+
+function makeDevItem(type,devDef){
+  const el=document.createElement('div');
+  el.className='dev-item';
+  el.dataset.type=type;
+  el.title=devDef.lbl;
+  el.innerHTML=renderDevIcon(devDef,devDef.col)+`<div class="dev-lbl">${devDef.lbl}</div>`;
+  el.addEventListener('click',()=>{
+    el.classList.add('adding');setTimeout(()=>el.classList.remove('adding'),300);
+    const cw=document.getElementById('cw');
+    const r=cw.getBoundingClientRect();
+    const cx=(r.width/2-S.pan.x)/S.zoom;
+    const cy=(r.height/2-S.pan.y)/S.zoom;
+    addNode(type,cx+Math.random()*60-30,cy+Math.random()*60-30);
+    notify(devDef.ico,'已加入 '+devDef.lbl);
+    if(window.innerWidth<=768)closeSb();
+  });
+  el.addEventListener('mousedown',e=>{e.preventDefault();startPaletteDrag(e,type,devDef)});
+  el.addEventListener('touchstart',e=>{e.preventDefault();startPaletteTouchDrag(e.touches[0],type,devDef)},{passive:false});
+  return el;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  PALETTE DRAG — Mouse
+// ═══════════════════════════════════════════════════════════════
+let palDrag=null;
+function startPaletteDrag(e,type,devDef){
+  const ghost=document.createElement('div');
+  ghost.style.cssText=`position:fixed;z-index:99999;pointer-events:none;opacity:0.9;
+    background:rgba(7,14,26,0.92);border:1.5px solid rgba(45,156,254,0.6);border-radius:9px;
+    padding:6px 10px;font-size:20px;display:flex;align-items:center;gap:6px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.5)`;
+  ghost.innerHTML=`<span>${devDef.ico}</span><span style="font-size:10px;color:#7b92b8">${devDef.lbl}</span>`;
+  document.body.appendChild(ghost);
+  palDrag={type,devDef,ghost};
+  const move=(ev)=>{ghost.style.left=(ev.clientX+12)+'px';ghost.style.top=(ev.clientY+12)+'px'};
+  const up=(ev)=>{
+    ghost.remove();palDrag=null;
+    document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up);
+    const cw=document.getElementById('cw');const r=cw.getBoundingClientRect();
+    if(ev.clientX>=r.left&&ev.clientX<=r.right&&ev.clientY>=r.top&&ev.clientY<=r.bottom){
+      const x=(ev.clientX-r.left-S.pan.x)/S.zoom;
+      const y=(ev.clientY-r.top-S.pan.y)/S.zoom;
+      addNode(type,x,y);notify(devDef.ico,'已加入 '+devDef.lbl);
+    }
+  };
+  move(e);
+  document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  PALETTE DRAG — Touch
+// ═══════════════════════════════════════════════════════════════
+function startPaletteTouchDrag(touch,type,devDef){
+  const ghost=document.createElement('div');
+  ghost.style.cssText=`position:fixed;z-index:99999;pointer-events:none;opacity:0.9;
+    background:rgba(7,14,26,0.92);border:1.5px solid rgba(45,156,254,0.6);border-radius:9px;
+    padding:8px 12px;font-size:24px;`;
+  ghost.textContent=devDef.ico;
+  document.body.appendChild(ghost);
+  ghost.style.left=(touch.clientX+10)+'px';ghost.style.top=(touch.clientY+10)+'px';
+  function onMove(ev){
+    ev.preventDefault();const t=ev.touches[0];
+    ghost.style.left=(t.clientX+10)+'px';ghost.style.top=(t.clientY+10)+'px';
+  }
+  function onEnd(ev){
+    ev.preventDefault();ghost.remove();
+    document.removeEventListener('touchmove',onMove);document.removeEventListener('touchend',onEnd);
+    const t=ev.changedTouches[0];const cw=document.getElementById('cw');const r=cw.getBoundingClientRect();
+    if(t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom){
+      const x=(t.clientX-r.left-S.pan.x)/S.zoom;const y=(t.clientY-r.top-S.pan.y)/S.zoom;
+      addNode(type,x,y);notify(devDef.ico,'已加入 '+devDef.lbl);
+      if(window.innerWidth<=768)closeSb();
+    }
+  }
+  document.addEventListener('touchmove',onMove,{passive:false});document.addEventListener('touchend',onEnd,{passive:false});
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  BUILD CONN LIST
+// ═══════════════════════════════════════════════════════════════
+function buildConnList(){
+  const list=document.getElementById('conn-list');list.innerHTML='';
+  CONN_TYPES.forEach(c=>{
+    const el=document.createElement('div');
+    el.className='conn-item'+(c.id===S.connType?' sel':'');
+    el.id='ct-'+c.id;
+    const lineHtml=c.dash
+      ?`<svg width="26" height="12"><line x1="0" y1="6" x2="26" y2="6" stroke="${c.col}" stroke-width="2" stroke-dasharray="${c.dash}"/></svg>`
+      :`<svg width="26" height="12"><line x1="0" y1="6" x2="26" y2="6" stroke="${c.col}" stroke-width="2"/></svg>`;
+    el.innerHTML=`<div class="conn-line-preview">${lineHtml}</div><div class="conn-lbl">${c.lbl}</div><div class="conn-badge">${c.bw||'–'}</div>`;
+    el.onclick=()=>{
+      S.connType=c.id;
+      document.querySelectorAll('.conn-item').forEach(x=>x.classList.remove('sel'));
+      el.classList.add('sel');notify('⌇','連線：'+c.lbl);
+    };
+    list.appendChild(el);
+  });
+}
+
+function buildLegend(){
+  const rows=document.getElementById('legend-rows');rows.innerHTML='';
+  CONN_TYPES.slice(0,6).forEach(c=>{
+    const r=document.createElement('div');r.className='leg-r';
+    const col=c.col.replace('0.9','0.85');
+    r.innerHTML=`<div class="leg-l" style="background:${col}"></div>${c.lbl}`;
+    rows.appendChild(r);
+  });
+}
+
+function buildTemplateList(){
+  const list=document.getElementById('template-list');list.innerHTML='';
+  const cats={};
+  TOPOLOGY_TEMPLATES.forEach(t=>{const c=t.category||'其他';if(!cats[c])cats[c]=[];cats[c].push(t)});
+  Object.entries(cats).forEach(([catName,tmpls])=>{
+    const title=document.createElement('div');
+    title.className='sb-section-title';title.textContent=catName;
+    list.appendChild(title);
+    tmpls.forEach(t=>{
+      const btn=document.createElement('button');
+      btn.className='btn-ghost';
+      btn.style.cssText='text-align:left;padding:9px 11px;width:100%;font-size:11px';
+      btn.innerHTML=`<div style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">${t.icon}</span><div><div style="color:var(--t1);font-weight:600">${t.name}</div><div style="font-size:9px;color:var(--t3);margin-top:1px">${t.desc}</div></div></div>`;
+      btn.onclick=()=>insertTemplate(t);
+      list.appendChild(btn);
+    });
+  });
+}
+
+function insertTemplate(tmpl){
+  if(!confirm(`插入範本「${tmpl.name}」？這將清除目前畫布。`))return;
+  saveHistory();
+  const data=tmpl.create();
+  S.nc=0;
+  S.nodes=data.ns.map((d,i)=>({
+    id:'nt'+i+'_'+Date.now(),w:96,h:82,
+    mask:'255.255.255.0',vlan:'',port:'',model:'',gateway:'',note:'',
+    label:d.label||DEVICES[d.type]?.lbl||d.type,
+    ...d
+  }));
+  S.conns=data.conns.map(([fi,ti,type])=>{
+    const ct=CONN_TYPES.find(x=>x.id===type)||CONN_TYPES[0];
+    if(!S.nodes[fi]||!S.nodes[ti])return null;
+    return{id:'ct'+fi+'_'+ti+'_'+Date.now(),from:S.nodes[fi].id,to:S.nodes[ti].id,
+      type,color:ct.col,dash:ct.dash,arrow:ct.arrow,bw:ct.bw,label:''};
+  }).filter(Boolean);
+  S.zones=data.zones||[];
+  renderAll();fitView();markDirty();
+  notify(tmpl.icon,'已載入範本：'+tmpl.name);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  NODE OPERATIONS
+// ═══════════════════════════════════════════════════════════════
+function getDevDef(type){
+  if(type&&type.startsWith('custom_')){
+    const id=type.replace('custom_','');
+    return S.customDevices.find(d=>d.id===id)||{lbl:'自訂',ico:'⬡',col:'#2d9cfe'};
+  }
+  return DEVICES[type]||{lbl:'裝置',ico:'⬡',col:'#2d9cfe'};
+}
+
+function addNode(type,x,y){
+  const def=getDevDef(type);
+  S.nc++;
+  const node={
+    id:'n'+Date.now()+'_'+S.nc,
+    type,x:Math.round(x-48),y:Math.round(y-40),w:96,h:82,
+    label:def.lbl,ip:'',mask:'255.255.255.0',vlan:'',dept:'',note:'',
+    status:'online',color:def.color||def.col,port:'',model:'',gateway:''
+  };
+  saveHistory();S.nodes.push(node);renderAll();selectOnly(node.id);markDirty();
+  return node;
+}
+
+function getNode(id){return S.nodes.find(n=>n.id===id)}
+function selectOnly(id){S.selIds=[id];updateRpPanel();renderAll()}
+function selectAll(){S.selIds=S.nodes.map(n=>n.id);updateRpPanel();renderAll()}
+
+function deleteSelected(){
+  if(S.selIds.length===0)return;
+  saveHistory();
+  S.conns=S.conns.filter(c=>!S.selIds.includes(c.from)&&!S.selIds.includes(c.to));
+  S.nodes=S.nodes.filter(n=>!S.selIds.includes(n.id));
+  S.zones=S.zones.filter(z=>!S.selIds.includes(z.id));
+  S.selIds=[];renderAll();updateRpPanel();notify('⌫','已刪除');markDirty();
+}
+
+function doDuplicate(){
+  if(S.selIds.length===0)return;
+  saveHistory();
+  const newIds=[];
+  S.selIds.forEach(id=>{
+    const n=getNode(id);
+    if(n){
+      const c={...n,id:'n'+Date.now()+'_'+S.nc++,x:n.x+32,y:n.y+32};
+      S.nodes.push(c);newIds.push(c.id);
+    } else {
+      const z=S.zones.find(x=>x.id===id);
+      if(z){
+        const cz={...z,id:'z'+Date.now()+'_'+S.nc++,x:z.x+32,y:z.y+32};
+        S.zones.push(cz);newIds.push(cz.id);
+      }
+    }
+  });
+  S.selIds=newIds;renderAll();updateRpPanel();notify('⧉','已複製');markDirty();
+}
+
+function updateNodeProp(key,val){
+  S.selIds.forEach(id=>{const n=getNode(id);if(n)n[key]=val});
+  renderAll();markDirty();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CONNECTION OPERATIONS
+// ═══════════════════════════════════════════════════════════════
+function addConn(fromId,toId){
+  if(fromId===toId)return;
+  if(S.conns.find(c=>(c.from===fromId&&c.to===toId)||(c.from===toId&&c.to===fromId))){
+    notify('⚠','連線已存在');return;
+  }
+  saveHistory();
+  const ct=CONN_TYPES.find(x=>x.id===S.connType)||CONN_TYPES[0];
+  const bwSel=document.getElementById('conn-bw-sel');
+  const bw=bwSel&&bwSel.value?bwSel.value:ct.bw;
+  const lblInput=document.getElementById('conn-label-input');
+  const label=lblInput?lblInput.value:'';
+  const dirSel=document.getElementById('conn-dir-sel');
+  const dir=dirSel?dirSel.value:'uni';
+  let arrowStart=false,arrowEnd=ct.arrow;
+  if(dir==='bi'){arrowStart=true;arrowEnd=true;}
+  if(dir==='none'){arrowStart=false;arrowEnd=false;}
+  S.conns.push({
+    id:'c'+Date.now(),from:fromId,to:toId,
+    type:S.connType,label,bw,
+    color:ct.col,dash:ct.dash,arrow:arrowEnd,arrowStart
+  });
+  renderAll();notify('⌇','已建立連線');markDirty();
+}
+
+function deleteConn(id){
+  saveHistory();S.conns=S.conns.filter(c=>c.id!==id);
+  renderAll();notify('⌫','已刪除連線');markDirty();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════════════════════
+function renderAll(){
+  const tx=`translate(${S.pan.x},${S.pan.y}) scale(${S.zoom})`;
+  zonesG.setAttribute('transform',tx);
+  labelsG.setAttribute('transform',tx);
+  connsG.setAttribute('transform',tx);
+  nodesG.setAttribute('transform',tx);
+  renderZones();renderLabels();renderConns();renderNodes();
+  updateMinimap();
+}
+
+// ── ZONES ──
+function renderZones(){
+  zonesG.innerHTML='';
+  S.zones.forEach(z=>{
+    const g=mkSVG('g');g.dataset.id=z.id;
+    const isSel=S.selIds.includes(z.id);
+    const r=mkSVG('rect');
+    r.setAttribute('x',z.x);r.setAttribute('y',z.y);
+    r.setAttribute('width',z.w);r.setAttribute('height',z.h);
+    r.setAttribute('rx','14');
+    r.setAttribute('fill',isSel?z.color+'22':z.color+'10');
+    r.setAttribute('stroke',isSel?z.color:z.color+'60');
+    r.setAttribute('stroke-width',isSel?'2.5':'1.5');
+    r.setAttribute('stroke-dasharray',isSel?'none':'6 3');
+    if(isSel)r.setAttribute('filter','url(#glow)');
+    g.appendChild(r);
+    // Label background pill
+    const safeLabel=z.label||'';
+    const lblW=Math.min(z.w-16,safeLabel.length*7+18);
+    const lbg=mkSVG('rect');
+    lbg.setAttribute('x',z.x+10);lbg.setAttribute('y',z.y+8);
+    lbg.setAttribute('width',lblW);lbg.setAttribute('height','20');
+    lbg.setAttribute('rx','6');lbg.setAttribute('fill',z.color+'28');
+    g.appendChild(lbg);
+    const lt=mkSVG('text');
+    lt.setAttribute('x',z.x+18);lt.setAttribute('y',z.y+22);
+    lt.setAttribute('font-family','Sora,sans-serif');lt.setAttribute('font-size','11');
+    lt.setAttribute('font-weight','700');lt.setAttribute('fill',z.color+'dd');
+    lt.textContent=safeLabel;g.appendChild(lt);
+    if(z.note){
+      const nt=mkSVG('text');
+      nt.setAttribute('x',z.x+14);nt.setAttribute('y',z.y+37);
+      nt.setAttribute('font-family','JetBrains Mono,monospace');nt.setAttribute('font-size','8.5');
+      nt.setAttribute('fill',z.color+'88');nt.textContent=z.note;g.appendChild(nt);
+    }
+   g.addEventListener('dblclick',ev=>{ev.stopPropagation();editZone(z.id)});
+    g.style.cursor='move';
+    g.addEventListener('mousedown',ev=>{
+      if(S.tool!=='select')return;ev.stopPropagation();
+      // 選取zone（不呼叫renderAll避免DOM重建破壞拖曳）
+      if(ev.shiftKey){
+        if(S.selIds.includes(z.id))S.selIds=S.selIds.filter(x=>x!==z.id);
+        else S.selIds.push(z.id);
+      } else {
+        S.selIds=[z.id];
+      }
+      updateRpPanel();
+      // 拖曳
+      let moved=false;
+      const pt=svgPt(ev);const ox=pt.x-z.x,oy=pt.y-z.y;
+      function mm(mev){
+        moved=true;
+        const p=svgPt(mev);z.x=p.x-ox;z.y=p.y-oy;renderAll();
+      }
+      function mu(){
+        document.removeEventListener('mousemove',mm);
+        document.removeEventListener('mouseup',mu);
+        if(moved)markDirty();
+        else renderAll(); // 未移動才在mouseup後renderAll更新選取框線
+      }
+      document.addEventListener('mousemove',mm);document.addEventListener('mouseup',mu);
+    });
+    g.addEventListener('contextmenu',ev=>{
+      ev.preventDefault();ev.stopPropagation();
+      if(confirm('刪除此區域框?')){saveHistory();S.zones=S.zones.filter(z2=>z2.id!==z.id);renderAll();markDirty();}
+    });
+    zonesG.appendChild(g);
+  });
+}
+
+// ── FREE LABELS ──
+function renderLabels(){
+  labelsG.innerHTML='';
+  (S.labels||[]).forEach(lb=>{
+    const g=mkSVG('g');g.dataset.lid=lb.id;
+    const t=mkSVG('text');
+    t.setAttribute('x',lb.x);t.setAttribute('y',lb.y);
+    t.setAttribute('font-family','Sora,sans-serif');t.setAttribute('font-size',lb.size||14);
+    t.setAttribute('font-weight','600');t.setAttribute('fill',lb.color||'#dce9ff');
+    t.setAttribute('cursor','move');
+    t.textContent=lb.text;
+    g.appendChild(t);
+    // Drag
+    g.addEventListener('mousedown',ev=>{
+      if(S.tool!=='select')return;ev.stopPropagation();
+      const pt=svgPt(ev);const ox=pt.x-lb.x,oy=pt.y-lb.y;
+      function mm(me){const p=svgPt(me);lb.x=p.x-ox;lb.y=p.y-oy;renderAll()}
+      function mu(){document.removeEventListener('mousemove',mm);document.removeEventListener('mouseup',mu);markDirty()}
+      document.addEventListener('mousemove',mm);document.addEventListener('mouseup',mu);
+    });
+    // Double-click edit
+    g.addEventListener('dblclick',ev=>{
+      ev.stopPropagation();
+      const v=prompt('文字標籤:',lb.text);
+      if(v!==null){saveHistory();lb.text=v;renderAll();markDirty();}
+    });
+    // Right-click delete
+    g.addEventListener('contextmenu',ev=>{
+      ev.preventDefault();ev.stopPropagation();
+      if(confirm('刪除此文字標籤?')){saveHistory();S.labels=S.labels.filter(x=>x.id!==lb.id);renderAll();markDirty();}
+    });
+    labelsG.appendChild(g);
+  });
+}
+
+// ── CONNECTIONS ──
+function renderConns(){
+  connsG.innerHTML='';
+  S.conns.forEach(c=>{
+    const fn=getNode(c.from),tn=getNode(c.to);
+    if(!fn||!tn)return;
+    const fx=fn.x+fn.w/2,fy=fn.y+fn.h/2;
+    const tx2=tn.x+tn.w/2,ty2=tn.y+tn.h/2;
+    const dx=tx2-fx,dy=ty2-fy;
+    const cpx1=fx+dx*0.45,cpy1=fy;
+    const cpx2=tx2-dx*0.45,cpy2=ty2;
+    const dStr=`M${fx},${fy} C${cpx1},${cpy1} ${cpx2},${cpy2} ${tx2},${ty2}`;
+    const ct=CONN_TYPES.find(x=>x.id===c.type)||CONN_TYPES[0];
+    // Glow
+    const gp=mkSVG('path');
+    gp.setAttribute('d',dStr);gp.setAttribute('fill','none');
+    gp.setAttribute('stroke',c.color.replace('0.9','0.15'));
+    gp.setAttribute('stroke-width','8');gp.setAttribute('pointer-events','none');
+    connsG.appendChild(gp);
+    // Main path
+    const p=mkSVG('path');
+    p.setAttribute('d',dStr);p.setAttribute('fill','none');
+    p.setAttribute('stroke',c.color);p.setAttribute('stroke-width','1.8');
+    if(c.dash)p.setAttribute('stroke-dasharray',c.dash);
+    const mname=connColorToMarker(c.color);
+    if(c.arrow)p.setAttribute('marker-end','url(#arr-'+mname+')');
+    if(c.arrowStart)p.setAttribute('marker-start','url(#arrs-'+mname+')');
+    p.style.cursor='pointer';
+    p.addEventListener('click',ev=>{ev.stopPropagation();if(S.tool==='erase'){deleteConn(c.id);return;}showConnProps(c.id)});
+    p.addEventListener('dblclick',ev=>{ev.stopPropagation();const v=prompt('連線標籤:',c.label||'');if(v!==null){c.label=v;saveHistory();renderAll();markDirty();}});
+    connsG.appendChild(p);
+    // Label
+    const bwTxt=c.bw||ct.bw;const userLabel=c.label;
+    const midX=(fx+tx2)/2,midY=(fy+ty2)/2;
+    const angle=Math.atan2(ty2-fy,tx2-fx)*180/Math.PI;
+    const absAngle=Math.abs(angle);const labelOffset=(absAngle>90)?10:-10;
+    const displayTxt=userLabel||bwTxt;
+    if(displayTxt){
+      const tw=displayTxt.length*5.5+10;
+      const lBg=mkSVG('rect');
+      lBg.setAttribute('x',midX-tw/2);lBg.setAttribute('y',midY+labelOffset-10);
+      lBg.setAttribute('width',tw);lBg.setAttribute('height','14');
+      lBg.setAttribute('rx','4');lBg.setAttribute('fill','rgba(7,14,26,0.82)');
+      lBg.setAttribute('pointer-events','none');connsG.appendChild(lBg);
+      const lt=mkSVG('text');
+      lt.setAttribute('x',midX);lt.setAttribute('y',midY+labelOffset);
+      lt.setAttribute('text-anchor','middle');
+      lt.setAttribute('font-family','JetBrains Mono,monospace');lt.setAttribute('font-size','8.5');
+      lt.setAttribute('fill',c.color.replace('0.9','0.8'));lt.setAttribute('pointer-events','none');
+      lt.textContent=displayTxt;connsG.appendChild(lt);
+    }
+  });
+}
+
+function connColorToMarker(col){
+  if(col.includes('45,156,254')||col.includes('156,254'))return'blue';
+  if(col.includes('0,229,204')||col.includes('00e5cc')||col.includes('00E5CC'))return'cyan';
+  if(col.includes('168,85,247')||col.includes('168,85'))return'purple';
+  if(col.includes('249,115,22')||col.includes('249,115'))return'orange';
+  if(col.includes('239,68,68')||col.includes('239,68'))return'red';
+  if(col.includes('251,191,36')||col.includes('251,191'))return'yellow';
+  if(col.includes('244,114,182')||col.includes('244,114'))return'pink';
+  if(col.includes('34,211,160')||col.includes('34,211'))return'green';
+  if(col.includes('251,113,133')||col.includes('251,113'))return'rose';
+  return'blue';
+}
+
+// ── NODES — Enhanced SVG rendering ──
+function renderNodes(){
+  nodesG.innerHTML='';
+  S.nodes.forEach(n=>{
+    const sel=S.selIds.includes(n.id);
+    const def=getDevDef(n.type);
+    const g=mkSVG('g');
+    g.setAttribute('class','node-g');g.dataset.id=n.id;g.style.cursor='move';
+    const {x,y,w,h}=n;
+    const color=n.color||def.col;
+
+    // Online pulse ring
+    if(n.status==='online'){
+      const pg=mkSVG('rect');
+      pg.setAttribute('x',x-4);pg.setAttribute('y',y-4);
+      pg.setAttribute('width',w+8);pg.setAttribute('height',h+8);
+      pg.setAttribute('rx','16');pg.setAttribute('fill','none');
+      pg.setAttribute('stroke',color);pg.setAttribute('stroke-width','1');
+      pg.setAttribute('opacity','0');pg.style.animation='pulse-node 2.5s ease-in-out infinite';
+      g.appendChild(pg);
+    }
+
+    // Card background with subtle gradient
+    const bg=mkSVG('rect');
+    bg.setAttribute('x',x);bg.setAttribute('y',y);
+    bg.setAttribute('width',w);bg.setAttribute('height',h);
+    bg.setAttribute('rx','12');
+    bg.setAttribute('fill',sel?color+'22':'rgba(10,18,32,0.9)');
+    bg.setAttribute('stroke',sel?color:color+'55');
+    bg.setAttribute('stroke-width',sel?'2':'1.5');
+    if(sel)bg.setAttribute('filter','url(#glow)');
+    g.appendChild(bg);
+
+    // Top color accent bar
+    const accent=mkSVG('rect');
+    accent.setAttribute('x',x+8);accent.setAttribute('y',y);
+    accent.setAttribute('width',w-16);accent.setAttribute('height','3');
+    accent.setAttribute('rx','1.5');accent.setAttribute('fill',color);accent.setAttribute('opacity','0.9');
+    g.appendChild(accent);
+
+    // Icon area
+    const hasCustomSVG=def.svgKey&&DEVICE_SVG_ICONS[def.svgKey];
+    const icBg=mkSVG('circle');
+    icBg.setAttribute('cx',x+w/2);icBg.setAttribute('cy',y+27);icBg.setAttribute('r','14');
+    icBg.setAttribute('fill',color+'22');
+    g.appendChild(icBg);
+
+    if(hasCustomSVG){
+      // Render inline SVG icon scaled to the circle
+      const fo=document.createElementNS(NS,'foreignObject');
+      fo.setAttribute('x',x+w/2-11);fo.setAttribute('y',y+16);
+      fo.setAttribute('width','22');fo.setAttribute('height','22');
+      fo.setAttribute('pointer-events','none');
+      const div=document.createElementNS('http://www.w3.org/1999/xhtml','div');
+      div.style.cssText=`width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:${color};opacity:0.95`;
+      div.innerHTML=DEVICE_SVG_ICONS[def.svgKey];
+      fo.appendChild(div);g.appendChild(fo);
+    } else {
+      const emojiTxt=mkSVG('text');
+      emojiTxt.setAttribute('x',x+w/2);emojiTxt.setAttribute('y',y+32);
+      emojiTxt.setAttribute('text-anchor','middle');emojiTxt.setAttribute('dominant-baseline','middle');
+      emojiTxt.setAttribute('font-size','16');emojiTxt.setAttribute('pointer-events','none');
+      emojiTxt.textContent=def.ico;g.appendChild(emojiTxt);
+    }
+
+    // Status indicator dot
+    const statusColor={online:'#22d3a0',warning:'#fbbf24',offline:'#ef4444',unknown:'#475569'};
+    const sd=mkSVG('circle');
+    sd.setAttribute('cx',x+w-9);sd.setAttribute('cy',y+9);sd.setAttribute('r','4');
+    sd.setAttribute('fill',statusColor[n.status]||'#475569');
+    sd.setAttribute('stroke','rgba(4,9,15,0.95)');sd.setAttribute('stroke-width','1.5');
+    g.appendChild(sd);
+
+    // Device label
+    const lbl=mkSVG('text');
+    lbl.setAttribute('x',x+w/2);lbl.setAttribute('y',y+50);
+    lbl.setAttribute('text-anchor','middle');
+    lbl.setAttribute('font-family','Sora,sans-serif');lbl.setAttribute('font-size','9.5');
+    lbl.setAttribute('font-weight','700');lbl.setAttribute('fill','#dce9ff');
+    lbl.setAttribute('pointer-events','none');
+    const labelStr=n.label||def.lbl;
+    lbl.textContent=labelStr.length>12?labelStr.slice(0,11)+'…':labelStr;
+    g.appendChild(lbl);
+
+    // IP address
+    if(n.ip){
+      const iptxt=mkSVG('text');
+      iptxt.setAttribute('x',x+w/2);iptxt.setAttribute('y',y+63);
+      iptxt.setAttribute('text-anchor','middle');
+      iptxt.setAttribute('font-family','JetBrains Mono,monospace');iptxt.setAttribute('font-size','7.5');
+      iptxt.setAttribute('fill','#5a7698');iptxt.setAttribute('pointer-events','none');
+      iptxt.textContent=n.ip;g.appendChild(iptxt);
+    }
+
+    // VLAN/port badge
+    if(n.vlan||n.port){
+      const badge=mkSVG('text');
+      badge.setAttribute('x',x+5);badge.setAttribute('y',y+76);
+      badge.setAttribute('font-family','JetBrains Mono,monospace');badge.setAttribute('font-size','7');
+      badge.setAttribute('fill',color+'80');badge.setAttribute('pointer-events','none');
+      badge.textContent=(n.vlan?n.vlan:'')+(n.port?' :'+n.port:'');
+      g.appendChild(badge);
+    }
+
+    // Selection handles
+    if(sel){
+      const sr=mkSVG('rect');
+      sr.setAttribute('x',x-3);sr.setAttribute('y',y-3);
+      sr.setAttribute('width',w+6);sr.setAttribute('height',h+6);
+      sr.setAttribute('rx','14');sr.setAttribute('fill','none');
+      sr.setAttribute('stroke',color);sr.setAttribute('stroke-width','1.5');
+      sr.setAttribute('stroke-dasharray','4 2');sr.setAttribute('pointer-events','none');
+      g.appendChild(sr);
+      [[x-3,y-3],[x+w+3-6,y-3],[x-3,y+h+3-6],[x+w+3-6,y+h+3-6]].forEach(([hx,hy])=>{
+        const hr=mkSVG('rect');
+        hr.setAttribute('x',hx);hr.setAttribute('y',hy);
+        hr.setAttribute('width','6');hr.setAttribute('height','6');
+        hr.setAttribute('fill',color);hr.setAttribute('stroke','rgba(4,9,15,0.9)');
+        hr.setAttribute('stroke-width','1.5');hr.setAttribute('pointer-events','none');
+        g.appendChild(hr);
+      });
+    }
+
+    g.addEventListener('mousedown',ev=>onNodeMouseDown(ev,n.id));
+    g.addEventListener('touchstart',ev=>onNodeTouchStart(ev,n.id),{passive:false});
+    g.addEventListener('dblclick',ev=>onNodeDblClick(ev,n.id));
+    g.addEventListener('contextmenu',ev=>onNodeCtxMenu(ev,n.id));
+    nodesG.appendChild(g);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SVG COORDINATE HELPER
+// ═══════════════════════════════════════════════════════════════
+function svgPt(clientX_or_event, clientY_arg){
+  let clientX,clientY;
+  if(typeof clientX_or_event==='object'&&'clientX' in clientX_or_event){
+    clientX=clientX_or_event.clientX;clientY=clientX_or_event.clientY;
+  } else {clientX=clientX_or_event;clientY=clientY_arg;}
+  const cw=document.getElementById('cw');const r=cw.getBoundingClientRect();
+  return{x:(clientX-r.left-S.pan.x)/S.zoom,y:(clientY-r.top-S.pan.y)/S.zoom};
+}
+
+function hitTest(x,y){
+  for(let i=S.nodes.length-1;i>=0;i--){
+    const n=S.nodes[i];
+    if(x>=n.x&&x<=n.x+n.w&&y>=n.y&&y<=n.y+n.h)return n.id;
+  }
+  return null;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SETUP SVG EVENTS
+// ═══════════════════════════════════════════════════════════════
+function setupSVGEvents(){
+  const cw=document.getElementById('cw');
+  cw.addEventListener('mousedown',onCanvasMouseDown);
+  cw.addEventListener('mousemove',onCanvasMouseMove);
+  cw.addEventListener('mouseup',onCanvasMouseUp);
+  cw.addEventListener('dblclick',onCanvasDblClick);
+  cw.addEventListener('contextmenu',onCanvasCtxMenu);
+  cw.addEventListener('wheel',onCanvasWheel,{passive:false});
+  cw.addEventListener('touchstart',onCanvasTouchStart,{passive:false});
+  cw.addEventListener('touchmove',onCanvasTouchMove,{passive:false});
+  cw.addEventListener('touchend',onCanvasTouchEnd,{passive:false});
+}
+
+function onCanvasMouseDown(ev){
+  if(ev.button===2)return;
+  const target=ev.target;
+  const nodeGroup=target.closest('[data-id]');
+  if(nodeGroup&&nodesG.contains(nodeGroup))return;
+  if(nodeGroup&&zonesG.contains(nodeGroup))return;
+  const pt=svgPt(ev);
+  if(ev.button===1||S.tool==='pan'){
+    ev.preventDefault();S.panning=true;S.lastMouse={x:ev.clientX,y:ev.clientY};
+    svgEl.classList.add('panning');return;
+  }
+  if(S.tool==='connect'){if(S.connecting)cancelConnect();return;}
+  if(S.tool==='label'){
+    // place pending label
+    if(S.labelPending){
+      if(!S.labels)S.labels=[];
+      saveHistory();
+      S.labels.push({id:'lb'+Date.now(),x:pt.x,y:pt.y,text:S.labelPending.text,size:S.labelPending.size,color:S.labelPending.color});
+      S.labelPending=null;renderAll();markDirty();setTool('select');
+      notify('T','文字標籤已放置');
+    } else {
+      // Open label modal first
+      openLabelModal(pt);
+    }
+    return;
+  }
+  if(S.tool==='select'){
+    S.selIds=[];updateRpPanel();renderAll();
+    S.rubberBand={x0:pt.x,y0:pt.y,x1:pt.x,y1:pt.y};return;
+  }
+  if(S.tool==='pan'){S.panning=true;S.lastMouse={x:ev.clientX,y:ev.clientY};svgEl.classList.add('panning');return;}
+  if(S.tool==='zone'){S.zoneDraw={x0:pt.x,y0:pt.y,x1:pt.x,y1:pt.y,cfg:null};return;}
+}
+
+function onCanvasMouseMove(ev){
+  const pt=svgPt(ev);
+  if(S.panning&&S.lastMouse){
+    S.pan.x+=ev.clientX-S.lastMouse.x;S.pan.y+=ev.clientY-S.lastMouse.y;
+    S.lastMouse={x:ev.clientX,y:ev.clientY};renderAll();return;
+  }
+  if(S.drag){
+    const n=getNode(S.drag.nodeId);
+    if(n){n.x=Math.round((pt.x-S.drag.ox)/10)*10;n.y=Math.round((pt.y-S.drag.oy)/10)*10;renderAll();}
+    return;
+  }
+  if(S.rubberBand){
+    S.rubberBand.x1=pt.x;S.rubberBand.y1=pt.y;
+    const cw=document.getElementById('cw');
+    const sb=document.getElementById('selbox');
+    const sx=Math.min(S.rubberBand.x0,S.rubberBand.x1)*S.zoom+S.pan.x;
+    const sy=Math.min(S.rubberBand.y0,S.rubberBand.y1)*S.zoom+S.pan.y;
+    const sw=Math.abs(S.rubberBand.x1-S.rubberBand.x0)*S.zoom;
+    const sh=Math.abs(S.rubberBand.y1-S.rubberBand.y0)*S.zoom;
+    sb.style.display='block';sb.style.left=sx+'px';sb.style.top=sy+'px';
+    sb.style.width=sw+'px';sb.style.height=sh+'px';return;
+  }
+  if(S.zoneDraw){S.zoneDraw.x1=pt.x;S.zoneDraw.y1=pt.y;updateZoneDrawPreview();return;}
+  if(S.connecting){
+    const fn=getNode(S.connecting.fromId);
+    if(fn){
+      const fx=fn.x+fn.w/2,fy=fn.y+fn.h/2;
+      const tx2=`translate(${S.pan.x},${S.pan.y}) scale(${S.zoom})`;
+      prevPath.setAttribute('d',`M${fx},${fy} C${(fx+pt.x)/2},${fy} ${(fx+pt.x)/2},${pt.y} ${pt.x},${pt.y}`);
+      prevPath.setAttribute('transform',tx2);prevPath.style.display='block';
+    }
+  }
+}
+
+function onCanvasMouseUp(ev){
+  svgEl.classList.remove('panning');
+  if(S.panning){S.panning=false;S.lastMouse=null;return;}
+  if(S.drag){S.drag=null;markDirty();return;}
+  if(S.rubberBand){
+    const rb=S.rubberBand;S.rubberBand=null;
+    document.getElementById('selbox').style.display='none';
+    const minX=Math.min(rb.x0,rb.x1),maxX=Math.max(rb.x0,rb.x1);
+    const minY=Math.min(rb.y0,rb.y1),maxY=Math.max(rb.y0,rb.y1);
+    if(maxX-minX>4&&maxY-minY>4){
+      S.selIds=S.nodes.filter(n=>
+        n.x+n.w/2>=minX&&n.x+n.w/2<=maxX&&n.y+n.h/2>=minY&&n.y+n.h/2<=maxY
+      ).map(n=>n.id);
+    }
+    updateRpPanel();renderAll();return;
+  }
+  if (S.zoneDraw) {
+    const zd = S.zoneDraw; S.zoneDraw = null;
+    // 清除預覽矩形（無論是否成功都要移除）
+    const pp = document.getElementById('zone-preview'); if (pp) pp.remove();
+    const zw = Math.abs(zd.x1 - zd.x0), zh = Math.abs(zd.y1 - zd.y0);
+    if (zw > 30 && zh > 30) {
+      openZoneModal({ x: Math.min(zd.x0, zd.x1), y: Math.min(zd.y0, zd.y1), w: zw, h: zh });
+    } else {
+      notify('⚠', '區域太小，請拖曳更大的範圍（至少 30×30）');
+    }
+    setTool('select');
+    return;
+  }
+}
+
+function onCanvasDblClick(ev){
+  if(ev.target.closest('[data-id]'))return;
+  if(S.tool==='select'||S.tool==='pan'){
+    const pt=svgPt(ev);addNode('pc',pt.x,pt.y);
+  }
+}
+
+function onCanvasCtxMenu(ev){ev.preventDefault()}
+
+// ═══════════════════════════════════════════════════════════════
+//  NODE EVENTS
+// ═══════════════════════════════════════════════════════════════
+function onNodeMouseDown(ev,id){
+  ev.stopPropagation();
+  if(ev.button===2)return;
+  if(S.tool==='erase'){S.selIds=[id];deleteSelected();return;}
+  if(S.tool==='connect'){
+    if(!S.connecting){
+      S.connecting={fromId:id};
+      document.getElementById('conn-mode-bar').classList.add('show');
+      S.selIds=[id];renderAll();notify('🔗','點擊目標節點完成連線 (Esc取消)');
+    } else {
+      addConn(S.connecting.fromId,id);
+      S.connecting=null;prevPath.style.display='none';
+      document.getElementById('conn-mode-bar').classList.remove('show');
+    }
+    return;
+  }
+  if(S.tool==='select'){
+    if(ev.shiftKey){
+      if(S.selIds.includes(id))S.selIds=S.selIds.filter(x=>x!==id);
+      else S.selIds.push(id);
+    } else {
+      if(!S.selIds.includes(id))S.selIds=[id];
+    }
+    updateRpPanel();
+    const pt=svgPt(ev);const n=getNode(id);
+    if(n)S.drag={nodeId:id,ox:pt.x-n.x,oy:pt.y-n.y};
+    renderAll();
+    const move=(mev)=>{
+      const p=svgPt(mev);const node=getNode(id);
+      if(node&&S.drag&&S.drag.nodeId===id){
+        const dx=p.x-S.drag.ox-node.x,dy=p.y-S.drag.oy-node.y;
+        node.x=Math.round((p.x-S.drag.ox)/10)*10;node.y=Math.round((p.y-S.drag.oy)/10)*10;
+        // Move all selected nodes together
+        if(S.selIds.length>1){
+          S.selIds.filter(sid=>sid!==id).forEach(sid=>{
+            const sn=getNode(sid);if(sn){sn.x=Math.round((sn.x+dx)/10)*10;sn.y=Math.round((sn.y+dy)/10)*10;}
+          });
+        }
+        renderAll();
+      }
+    };
+    const up=()=>{S.drag=null;document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up);markDirty();};
+    document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);
+  }
+}
+
+function onNodeTouchStart(ev,id){
+  ev.preventDefault();ev.stopPropagation();
+  const touch=ev.touches[0];
+  if(S.tool==='connect'){
+    if(!S.connecting){S.connecting={fromId:id};document.getElementById('conn-mode-bar').classList.add('show');S.selIds=[id];renderAll();}
+    else {addConn(S.connecting.fromId,id);S.connecting=null;prevPath.style.display='none';document.getElementById('conn-mode-bar').classList.remove('show');}
+    return;
+  }
+  S.selIds=[id];updateRpPanel();
+  const pt=svgPt(touch.clientX,touch.clientY);const n=getNode(id);
+  if(n)S.drag={nodeId:id,ox:pt.x-n.x,oy:pt.y-n.y};renderAll();
+}
+
+function onNodeDblClick(ev,id){
+  ev.stopPropagation();const n=getNode(id);if(!n)return;
+  const v=prompt('裝置名稱:',n.label);
+  if(v!==null){saveHistory();n.label=v;renderAll();updateRpPanel();markDirty();}
+}
+
+function onNodeCtxMenu(ev,id){
+  ev.preventDefault();ev.stopPropagation();
+  if(!S.selIds.includes(id))S.selIds=[id];
+  updateRpPanel();renderAll();showCtx(ev.clientX,ev.clientY);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TOUCH CANVAS
+// ═══════════════════════════════════════════════════════════════
+let pinch={active:false,dist:0,z:1};
+
+function onCanvasTouchStart(ev){
+  const target=ev.target.closest('[data-id]');
+  if(target&&nodesG.contains(target))return;
+  if(ev.touches.length===2){ev.preventDefault();pinch.active=true;pinch.dist=touchDist(ev.touches);pinch.z=S.zoom;}
+  else if(ev.touches.length===1){ev.preventDefault();S.panning=true;const t=ev.touches[0];S.lastMouse={x:t.clientX,y:t.clientY};}
+}
+function onCanvasTouchMove(ev){
+  ev.preventDefault();
+  if(ev.touches.length===2&&pinch.active){
+    const d=touchDist(ev.touches);S.zoom=Math.max(0.1,Math.min(4,pinch.z*(d/pinch.dist)));updateZoomVal();renderAll();return;
+  }
+  if(ev.touches.length===1){
+    const t=ev.touches[0];
+    if(S.drag){
+      const pt=svgPt(t.clientX,t.clientY);const n=getNode(S.drag.nodeId);
+      if(n){n.x=Math.round((pt.x-S.drag.ox)/10)*10;n.y=Math.round((pt.y-S.drag.oy)/10)*10;renderAll();}
+    } else if(S.panning&&S.lastMouse){
+      S.pan.x+=t.clientX-S.lastMouse.x;S.pan.y+=t.clientY-S.lastMouse.y;
+      S.lastMouse={x:t.clientX,y:t.clientY};renderAll();
+    }
+  }
+}
+function onCanvasTouchEnd(ev){pinch.active=false;S.panning=false;if(S.drag){S.drag=null;markDirty();}}
+function touchDist(touches){return Math.hypot(touches[0].clientX-touches[1].clientX,touches[0].clientY-touches[1].clientY)}
+
+// ═══════════════════════════════════════════════════════════════
+//  WHEEL ZOOM
+// ═══════════════════════════════════════════════════════════════
+function onCanvasWheel(ev){
+  ev.preventDefault();
+  const delta=ev.deltaY>0?-0.09:0.09;
+  const newZ=Math.max(0.1,Math.min(4,S.zoom+delta));
+  const cw=document.getElementById('cw');const r=cw.getBoundingClientRect();
+  const cx=ev.clientX-r.left,cy=ev.clientY-r.top;
+  S.pan.x=cx-(cx-S.pan.x)*(newZ/S.zoom);S.pan.y=cy-(cy-S.pan.y)*(newZ/S.zoom);
+  S.zoom=newZ;updateZoomVal();renderAll();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TOOL MANAGEMENT
+// ═══════════════════════════════════════════════════════════════
+function setTool(t){
+  S.tool=t;
+  if(t!=='connect')cancelConnect();
+  if(t!=='label')S.labelPending=null;
+  document.querySelectorAll('#tg-tools .tbtn').forEach(b=>b.classList.remove('act'));
+  const btn=document.getElementById('t-'+t);if(btn)btn.classList.add('act');
+  svgEl.className='';svgEl.classList.add('tool-'+t);
+}
+
+function cancelConnect(){
+  S.connecting=null;prevPath.style.display='none';
+  document.getElementById('conn-mode-bar').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  KEYBOARD SHORTCUTS — FIXED: all shortcuts work reliably
+// ═══════════════════════════════════════════════════════════════
+function onKey(ev){
+  const tag=ev.target.tagName.toLowerCase();
+  const isEditing=tag==='input'||tag==='textarea'||tag==='select';
+
+  // Global: Escape always works
+  if(ev.key==='Escape'){
+    if(isEditing)return;
+    S.selIds=[];cancelConnect();S.rubberBand=null;S.labelPending=null;
+    document.getElementById('selbox').style.display='none';
+    // Close any open modal
+    document.querySelectorAll('.mo.open').forEach(m=>m.classList.remove('open'));
+    document.getElementById('kbd-help').classList.remove('open');
+    updateRpPanel();renderAll();return;
+  }
+
+  // Ctrl/Meta combos work even when typing IF focused on canvas
+  if(ev.ctrlKey||ev.metaKey){
+    if(ev.key==='z'||ev.key==='Z'){ev.preventDefault();doUndo();return;}
+    if(ev.key==='y'||ev.key==='Y'){ev.preventDefault();doRedo();return;}
+    if(isEditing)return;
+    if(ev.key==='a'||ev.key==='A'){ev.preventDefault();selectAll();return;}
+    if(ev.key==='d'||ev.key==='D'){ev.preventDefault();doDuplicate();return;}
+    if(ev.key==='s'||ev.key==='S'){ev.preventDefault();manualSave();return;}
+    if(ev.key==='g'||ev.key==='G'){ev.preventDefault();groupSelectedAsZone();return;}
+    if(ev.key==='c'||ev.key==='C'){ev.preventDefault();copySelected();return;}
+    if(ev.key==='v'||ev.key==='V'){ev.preventDefault();pasteSelected();return;}
+    if(ev.key==='f'||ev.key==='F'){ev.preventDefault();focusNodeSearch();return;}
+    return;
+  }
+
+  if(isEditing)return;
+
+  // Tool shortcuts
+  if(ev.key==='v'||ev.key==='V'){setTool('select');return;}
+  if(ev.key==='c'||ev.key==='C'){setTool('connect');return;}
+  if(ev.key==='h'||ev.key==='H'){setTool('pan');return;}
+  if(ev.key==='z'||ev.key==='Z'){setTool('zone');return;}
+  if(ev.key==='t'||ev.key==='T'){setTool('label');return;}
+  if(ev.key==='e'||ev.key==='E'){setTool('erase');return;}
+  if(ev.key==='f'||ev.key==='F'){fitView();return;}
+  if(ev.key==='g'||ev.key==='G'){toggleGrid();return;}
+  if(ev.key==='l'||ev.key==='L'){autoLayout();return;}
+  if(ev.key==='?'){showKbdHelp();return;}
+  if(ev.key==='Delete'||ev.key==='Backspace'){ev.preventDefault();deleteSelected();return;}
+  if(ev.key==='F2'){
+    if(S.selIds.length>0){const n=getNode(S.selIds[0]);if(n){const v=prompt('裝置名稱:',n.label);if(v!==null){saveHistory();n.label=v;renderAll();updateRpPanel();markDirty();}}}
+    return;
+  }
+
+  // Arrow nudge — 同時支援節點和區域框
+  const step=ev.shiftKey?20:5;
+  if(S.selIds.length>0){
+    let moved=false;
+    S.selIds.forEach(id=>{
+      const n=getNode(id);
+      if(n){
+        if(ev.key==='ArrowUp'){ev.preventDefault();n.y-=step;moved=true;}
+        if(ev.key==='ArrowDown'){ev.preventDefault();n.y+=step;moved=true;}
+        if(ev.key==='ArrowLeft'){ev.preventDefault();n.x-=step;moved=true;}
+        if(ev.key==='ArrowRight'){ev.preventDefault();n.x+=step;moved=true;}
+      }
+      const z=S.zones.find(x=>x.id===id);
+      if(z){
+        if(ev.key==='ArrowUp'){ev.preventDefault();z.y-=step;moved=true;}
+        if(ev.key==='ArrowDown'){ev.preventDefault();z.y+=step;moved=true;}
+        if(ev.key==='ArrowLeft'){ev.preventDefault();z.x-=step;moved=true;}
+        if(ev.key==='ArrowRight'){ev.preventDefault();z.x+=step;moved=true;}
+      }
+    });
+    if(moved){renderAll();markDirty();}
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ZOOM & VIEW
+// ═══════════════════════════════════════════════════════════════
+function doZoom(delta){S.zoom=Math.max(0.1,Math.min(4,S.zoom+delta));updateZoomVal();renderAll()}
+function updateZoomVal(){document.getElementById('zval').textContent=Math.round(S.zoom*100)+'%'}
+function resetView(){S.zoom=1;S.pan={x:60,y:40};updateZoomVal();renderAll()}
+function fitView(){
+  const hasNodes=S.nodes.length>0;const hasZones=S.zones.length>0;
+  if(!hasNodes&&!hasZones){resetView();return;}
+  const allX=[],allXe=[],allY=[],allYe=[];
+  if(hasNodes){S.nodes.forEach(n=>{allX.push(n.x);allXe.push(n.x+n.w);allY.push(n.y);allYe.push(n.y+n.h)});}
+  if(hasZones){S.zones.forEach(z=>{allX.push(z.x);allXe.push(z.x+z.w);allY.push(z.y);allYe.push(z.y+z.h)});}
+  const minX=Math.min(...allX)-40,maxX=Math.max(...allXe)+40;
+  const minY=Math.min(...allY)-40,maxY=Math.max(...allYe)+40;
+  const cw=document.getElementById('cw');
+  const pw=cw.clientWidth-30,ph=cw.clientHeight-30;
+  const scaleX=pw/(maxX-minX),scaleY=ph/(maxY-minY);
+  S.zoom=Math.min(scaleX,scaleY,2);
+  S.pan.x=(pw-(maxX-minX)*S.zoom)/2-minX*S.zoom+15;
+  S.pan.y=(ph-(maxY-minY)*S.zoom)/2-minY*S.zoom+15;
+  updateZoomVal();renderAll();
+}
+function toggleGrid(btn){
+  S.showGrid=!S.showGrid;
+  document.getElementById('grid').style.opacity=S.showGrid?'1':'0';
+  if(btn)btn.classList.toggle('act',S.showGrid);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ALIGN / DISTRIBUTE
+// ═══════════════════════════════════════════════════════════════
+function alignNodes(dir){
+  if(S.selIds.length<2){notify('⚠','請先選取至少 2 個節點');return;}
+  saveHistory();
+  const nodes=S.selIds.map(id=>getNode(id)).filter(Boolean);
+  if(dir==='left'){const minX=Math.min(...nodes.map(n=>n.x));nodes.forEach(n=>n.x=minX);}
+  if(dir==='right'){const maxX=Math.max(...nodes.map(n=>n.x+n.w));nodes.forEach(n=>n.x=maxX-n.w);}
+  if(dir==='center'){const cx=nodes.reduce((s,n)=>s+n.x+n.w/2,0)/nodes.length;nodes.forEach(n=>n.x=Math.round(cx-n.w/2));}
+  if(dir==='top'){const minY=Math.min(...nodes.map(n=>n.y));nodes.forEach(n=>n.y=minY);}
+  if(dir==='bottom'){const maxY=Math.max(...nodes.map(n=>n.y+n.h));nodes.forEach(n=>n.y=maxY-n.h);}
+  if(dir==='middle'){const cy=nodes.reduce((s,n)=>s+n.y+n.h/2,0)/nodes.length;nodes.forEach(n=>n.y=Math.round(cy-n.h/2));}
+  renderAll();markDirty();notify('⊣','已對齊');
+}
+
+function distributeNodes(axis){
+  if(S.selIds.length<3){notify('⚠','請先選取至少 3 個節點');return;}
+  saveHistory();
+  const nodes=S.selIds.map(id=>getNode(id)).filter(Boolean);
+  if(axis==='h'){
+    nodes.sort((a,b)=>a.x-b.x);
+    const total=nodes[nodes.length-1].x-nodes[0].x;
+    const gap=total/(nodes.length-1);
+    nodes.forEach((n,i)=>n.x=Math.round(nodes[0].x+gap*i));
+  } else {
+    nodes.sort((a,b)=>a.y-b.y);
+    const total=nodes[nodes.length-1].y-nodes[0].y;
+    const gap=total/(nodes.length-1);
+    nodes.forEach((n,i)=>n.y=Math.round(nodes[0].y+gap*i));
+  }
+  renderAll();markDirty();notify('⇔','已等距分佈');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  AUTO LAYOUT
+// ═══════════════════════════════════════════════════════════════
+function autoLayout(){
+  if(S.nodes.length===0)return;
+  saveHistory();
+  const typeHier={
+    internet:0,cloud_aws:0,cloud_azure:0,cloud_gcp:0,isp:0,wan:0,sd_wan:0,
+    firewall:1,ids:1,waf:1,vpn_gw:1,dlp:1,nac:1,
+    router:2,l3switch:2,
+    switch:3,hub:3,bridge:3,wlc:3,patch_panel:3,
+    ap:4,server:4,web_server:4,db_server:4,mail_server:4,
+    dc_server:4,file_server:4,app_server:4,vm_host:4,container_host:4,backup_server:4,
+    nas:4,san:4,nvr:4,nms:4,siem:4,log_server:4,soar:4,
+    erp_ding:4,erp_sap:4,erp_custom:4,
+    ups:4,pdu:4,kvm:4,rack:4,
+    pc:5,laptop:5,tablet:5,phone:5,thin_client:5,workstation:5,kiosk:5,
+    printer:5,mfp:5,ip_cam:5,voip_phone:5,iot_hub:5,access_ctrl:5,
+  };
+  const tiers={};
+  S.nodes.forEach(n=>{const t=typeHier[n.type]??3;if(!tiers[t])tiers[t]=[];tiers[t].push(n)});
+  const tierKeys=Object.keys(tiers).map(Number).sort((a,b)=>a-b);
+  let cy=60;
+  tierKeys.forEach(tier=>{
+    const nodes=tiers[tier];const rowW=nodes.length*120;let cx=200-rowW/2;
+    nodes.forEach(n=>{n.x=cx;n.y=cy;cx+=120});cy+=130;
+  });
+  renderAll();fitView();notify('⊹','已自動排列');markDirty();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  HISTORY
+// ═══════════════════════════════════════════════════════════════
+function saveHistory(){
+  S.history.push(JSON.stringify({nodes:S.nodes,conns:S.conns,zones:S.zones,labels:S.labels||[]}));
+  if(S.history.length>80)S.history.shift();
+  S.future=[];
+  updateUndoRedoBtns();
+}
+function doUndo(){
+  if(!S.history.length){notify('⚠','無可復原的操作');return;}
+  S.future.push(JSON.stringify({nodes:S.nodes,conns:S.conns,zones:S.zones,labels:S.labels||[]}));
+  const p=JSON.parse(S.history.pop());
+  S.nodes=p.nodes;S.conns=p.conns;S.zones=p.zones;S.labels=p.labels||[];
+  S.selIds=[];renderAll();updateRpPanel();notify('↩','已復原');markDirty();updateUndoRedoBtns();
+}
+function doRedo(){
+  if(!S.future.length){notify('⚠','無可重做的操作');return;}
+  S.history.push(JSON.stringify({nodes:S.nodes,conns:S.conns,zones:S.zones,labels:S.labels||[]}));
+  const p=JSON.parse(S.future.pop());
+  S.nodes=p.nodes;S.conns=p.conns;S.zones=p.zones;S.labels=p.labels||[];
+  S.selIds=[];renderAll();updateRpPanel();notify('↪','已重做');markDirty();updateUndoRedoBtns();
+}
+function updateUndoRedoBtns(){
+  const ub=document.getElementById('btn-undo');const rb=document.getElementById('btn-redo');
+  if(ub)ub.style.opacity=S.history.length?'1':'0.35';
+  if(rb)rb.style.opacity=S.future.length?'1':'0.35';
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  COPY / PASTE
+// ═══════════════════════════════════════════════════════════════
+let clipboard={nodes:[],zones:[]};
+function copySelected(){
+  if(S.selIds.length===0)return;
+  clipboard.nodes=S.selIds.map(id=>getNode(id)).filter(Boolean).map(n=>({...n}));
+  clipboard.zones=S.selIds.map(id=>S.zones.find(z=>z.id===id)).filter(Boolean).map(z=>({...z}));
+  const total=clipboard.nodes.length+clipboard.zones.length;
+  notify('⧉',`已複製 ${total} 個元件`);
+}
+function pasteSelected(){
+  if(clipboard.nodes.length===0&&clipboard.zones.length===0)return;
+  saveHistory();
+  const newIds=[];
+  clipboard.nodes.forEach(n=>{
+    const c={...n,id:'n'+Date.now()+'_'+S.nc++,x:n.x+40,y:n.y+40};
+    S.nodes.push(c);newIds.push(c.id);
+  });
+  clipboard.zones.forEach(z=>{
+    const cz={...z,id:'z'+Date.now()+'_'+S.nc++,x:z.x+40,y:z.y+40};
+    S.zones.push(cz);newIds.push(cz.id);
+  });
+  S.selIds=newIds;renderAll();updateRpPanel();notify('📋','已貼上');markDirty();
+}
+
+// Group selected nodes as zone
+function groupSelectedAsZone(){
+  const nodes=S.selIds.map(id=>getNode(id)).filter(Boolean);
+  if(nodes.length<2){notify('⚠','請先選取至少 2 個節點');return;}
+  const minX=Math.min(...nodes.map(n=>n.x))-20;const maxX=Math.max(...nodes.map(n=>n.x+n.w))+20;
+  const minY=Math.min(...nodes.map(n=>n.y))-30;const maxY=Math.max(...nodes.map(n=>n.y+n.h))+20;
+  openZoneModal({x:minX,y:minY,w:maxX-minX,h:maxY-minY});
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RIGHT PANEL
+// ═══════════════════════════════════════════════════════════════
+function updateRpPanel(){
+  const body=document.getElementById('rp-body');const title=document.getElementById('rp-title');
+  if(S.selIds.length===1){
+    const n=getNode(S.selIds[0]);
+    if(n){
+      title.textContent=n.label||'節點屬性';body.innerHTML=nodePropsHTML(n);
+      const rp=document.getElementById('rp');
+      if(window.innerWidth<=768){rp.classList.remove('hidden');rp.classList.add('open');}
+      return;
+    }
+    const z=S.zones.find(x=>x.id===S.selIds[0]);
+    if(z){
+      title.textContent=z.label||'區域框屬性';body.innerHTML=zonePropsHTML(z);
+      const rp=document.getElementById('rp');
+      if(window.innerWidth<=768){rp.classList.remove('hidden');rp.classList.add('open');}
+      return;
+    }
+  }
+  if(S.selIds.length>1){title.textContent=`已選取 ${S.selIds.length} 個元件`;body.innerHTML=multiSelHTML();return;}
+  title.textContent='畫布資訊';body.innerHTML=canvasInfoHTML();updateProjList();
+}
+
+function zonePropsHTML(z){
+  const chips=CHIP_COLORS.map(c=>`<div class="cchip${c===z.color?' on':''}" style="background:${c}" data-color="${c}" onclick="updateZoneProp('${z.id}','color','${c}');document.querySelectorAll('#rp-zone-colors .cchip').forEach(x=>x.classList.remove('on'));this.classList.add('on')"></div>`).join('');
+  return`
+  <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;padding:9px;background:var(--glass);border:1px solid var(--border);border-radius:var(--r2)">
+    <span style="font-size:22px">▣</span>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:11px;color:var(--t1);font-weight:600">${z.label||'區域框'}</div>
+      <div style="font-size:9px;font-family:var(--fm);color:var(--t3)">${z.w|0} × ${z.h|0} px</div>
+    </div>
+  </div>
+  <div class="pg"><span class="pl">區域名稱</span>
+    <input class="pi" value="${esc(z.label)}" oninput="updateZoneProp('${z.id}','label',this.value);document.getElementById('rp-title').textContent=this.value||'區域框屬性'" placeholder="例：IT機房 / DMZ">
+  </div>
+  <div class="pg"><span class="pl">備註 / VLAN</span>
+    <input class="pi" value="${esc(z.note||'')}" oninput="updateZoneProp('${z.id}','note',this.value)" placeholder="例：10.1.0.0/24 / VLAN 10">
+  </div>
+  <div class="pg"><span class="pl">框線顏色</span>
+    <div class="color-row" id="rp-zone-colors">${chips}</div>
+  </div>
+  <div class="pg"><span class="pl">位置 / 尺寸</span>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
+      <div><span style="font-size:9px;color:var(--t3);display:block;margin-bottom:2px">X</span>
+        <input class="pi" type="number" value="${z.x|0}" onchange="updateZoneProp('${z.id}','x',+this.value,true)"></div>
+      <div><span style="font-size:9px;color:var(--t3);display:block;margin-bottom:2px">Y</span>
+        <input class="pi" type="number" value="${z.y|0}" onchange="updateZoneProp('${z.id}','y',+this.value,true)"></div>
+      <div><span style="font-size:9px;color:var(--t3);display:block;margin-bottom:2px">寬度</span>
+        <input class="pi" type="number" value="${z.w|0}" onchange="updateZoneProp('${z.id}','w',Math.max(30,+this.value),true)"></div>
+      <div><span style="font-size:9px;color:var(--t3);display:block;margin-bottom:2px">高度</span>
+        <input class="pi" type="number" value="${z.h|0}" onchange="updateZoneProp('${z.id}','h',Math.max(30,+this.value),true)"></div>
+    </div>
+  </div>
+  <div style="display:flex;gap:5px;margin-top:8px">
+    <button class="btn-ghost" style="flex:1;font-size:10px;color:var(--red);border-color:rgba(239,68,68,0.3)" onclick="deleteSelectedZone('${z.id}')">⌫ 刪除區域框</button>
+  </div>`;
+}
+
+function updateZoneProp(id,key,val,withHistory){
+  const z=S.zones.find(x=>x.id===id);if(!z)return;
+  if(withHistory)saveHistory();
+  z[key]=val;renderAll();markDirty();
+}
+
+function deleteSelectedZone(id){
+  saveHistory();S.zones=S.zones.filter(z=>z.id!==id);
+  S.selIds=[];renderAll();updateRpPanel();notify('⌫','已刪除區域框');markDirty();
+}
+
+function nodePropsHTML(n){
+  const def=getDevDef(n.type);
+  const statusOpts=['online','warning','offline','unknown'];
+  const statusLbl={online:'🟢 上線',warning:'🟡 警告',offline:'🔴 離線',unknown:'⚫ 未知'};
+  const chips=CHIP_COLORS.map(c=>`<div class="cchip${c===n.color?' on':''}" style="background:${c}" onclick="updateNodeProp('color','${c}');document.querySelectorAll('.cchip').forEach(x=>x.classList.remove('on'));this.classList.add('on')"></div>`).join('');
+  const hasLinkType=def.svgKey?'SVG':'Emoji';
+  return`
+  <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;padding:9px;background:var(--glass);border:1px solid var(--border);border-radius:var(--r2)">
+    <span style="font-size:24px">${def.ico}</span>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:11px;color:var(--t1);font-weight:600">${def.lbl}</div>
+      <div style="font-size:9px;font-family:var(--fm);color:var(--t3)">${n.type}</div>
+    </div>
+    <div style="font-size:9px;color:var(--t3);background:var(--bg3);padding:2px 6px;border-radius:10px">${hasLinkType}</div>
+  </div>
+  <div class="pg"><span class="pl">裝置名稱 <span class="kbd">F2</span></span>
+    <input class="pi" value="${esc(n.label)}" oninput="updateNodeProp('label',this.value)" placeholder="裝置名稱">
+  </div>
+  <div class="pg"><span class="pl">IP 位址</span>
+    <input class="pi" value="${esc(n.ip)}" oninput="updateNodeProp('ip',this.value)" placeholder="192.168.1.1">
+  </div>
+  <div class="pg"><span class="pl">子網路遮罩</span>
+    <input class="pi" value="${esc(n.mask)}" oninput="updateNodeProp('mask',this.value)" placeholder="255.255.255.0">
+  </div>
+  <div class="pg"><span class="pl">預設閘道</span>
+    <input class="pi" value="${esc(n.gateway||'')}" oninput="updateNodeProp('gateway',this.value)" placeholder="192.168.1.254">
+  </div>
+  <div class="pg"><span class="pl">連接埠 / 服務</span>
+    <input class="pi" value="${esc(n.port)}" oninput="updateNodeProp('port',this.value)" placeholder=":80 / :443 / :3306">
+  </div>
+  <div class="pg"><span class="pl">VLAN</span>
+    <input class="pi" value="${esc(n.vlan)}" oninput="updateNodeProp('vlan',this.value)" placeholder="VLAN 10 / Trunk">
+  </div>
+  <div class="pg"><span class="pl">部門 / 位置</span>
+    <input class="pi" value="${esc(n.dept)}" oninput="updateNodeProp('dept',this.value)" placeholder="IT部門 / B1機房">
+  </div>
+  <div class="pg"><span class="pl">廠牌 / 型號</span>
+    <input class="pi" value="${esc(n.model||'')}" oninput="updateNodeProp('model',this.value)" placeholder="Cisco C9300 / Synology RS1221+">
+  </div>
+  <div class="pg"><span class="pl">狀態</span>
+    <select class="ps" onchange="updateNodeProp('status',this.value)">
+      ${statusOpts.map(s=>`<option value="${s}"${n.status===s?' selected':''}>${statusLbl[s]}</option>`).join('')}
+    </select>
+  </div>
+  <div class="pg"><span class="pl">備註 / 說明</span>
+    <textarea class="pi-area" oninput="updateNodeProp('note',this.value)" placeholder="詳細說明、設定備份、序號…">${esc(n.note)}</textarea>
+  </div>
+  <div class="pg"><span class="pl">節點顏色</span>
+    <div class="color-row">${chips}</div>
+  </div>
+  <div style="display:flex;gap:5px;margin-top:8px">
+    <button class="btn-ghost" style="flex:1;font-size:10px" onclick="doDuplicate()">⧉ 複製</button>
+    <button class="btn-ghost" style="flex:1;font-size:10px" onclick="setTool('connect');S.connecting={fromId:S.selIds[0]};document.getElementById('conn-mode-bar').classList.add('show');notify('🔗','點擊目標節點')">⌇ 連線</button>
+    <button class="btn-ghost" style="flex:1;font-size:10px;color:var(--red);border-color:rgba(239,68,68,0.3)" onclick="deleteSelected()">⌫ 刪除</button>
+  </div>`;
+}
+
+function multiSelHTML(){
+  return`
+  <div style="margin-bottom:10px;padding:8px;background:var(--glass);border:1px solid var(--border);border-radius:var(--r1);font-size:11px;color:var(--t2)">
+    已選取 <strong style="color:var(--t1)">${S.selIds.length}</strong> 個節點
+  </div>
+  <div class="pg"><span class="pl">對齊</span>
+    <div style="display:flex;gap:4px;flex-wrap:wrap">
+      <button class="btn-ghost" style="flex:1;font-size:10px;padding:4px" onclick="alignNodes('left')">⊣左</button>
+      <button class="btn-ghost" style="flex:1;font-size:10px;padding:4px" onclick="alignNodes('center')">⊥中</button>
+      <button class="btn-ghost" style="flex:1;font-size:10px;padding:4px" onclick="alignNodes('right')">⊢右</button>
+    </div>
+    <div style="display:flex;gap:4px;margin-top:4px">
+      <button class="btn-ghost" style="flex:1;font-size:10px;padding:4px" onclick="distributeNodes('h')">⇔等距(水平)</button>
+      <button class="btn-ghost" style="flex:1;font-size:10px;padding:4px" onclick="distributeNodes('v')">⇕等距(垂直)</button>
+    </div>
+  </div>
+  <div class="pg"><span class="pl">批次狀態</span>
+    <select class="ps" onchange="S.selIds.forEach(id=>{const n=getNode(id);if(n)n.status=this.value});renderAll();markDirty()">
+      <option value="online">🟢 全部上線</option>
+      <option value="warning">🟡 全部警告</option>
+      <option value="offline">🔴 全部離線</option>
+    </select>
+  </div>
+  <div class="pg"><span class="pl">批次顏色</span>
+    <div class="color-row">${CHIP_COLORS.map(c=>`<div class="cchip" style="background:${c}" onclick="S.selIds.forEach(id=>{const n=getNode(id);if(n)n.color='${c}'});renderAll();markDirty()"></div>`).join('')}</div>
+  </div>
+  <div class="pg"><span class="pl">群組為區域 <span class="kbd">Ctrl+G</span></span>
+    <button class="btn-ghost" style="width:100%;font-size:10px" onclick="groupSelectedAsZone()">▣ 框選為區域</button>
+  </div>
+  <div style="display:flex;gap:5px;margin-top:6px">
+    <button class="btn-ghost" style="flex:1;font-size:10px" onclick="doDuplicate()">⧉ 複製全部</button>
+    <button class="btn-ghost" style="flex:1;font-size:10px;color:var(--red);border-color:rgba(239,68,68,0.3)" onclick="deleteSelected()">⌫ 刪除全部</button>
+  </div>`;
+}
+
+function canvasInfoHTML(){
+  const online=S.nodes.filter(n=>n.status==='online').length;
+  const warn=S.nodes.filter(n=>n.status==='warning').length;
+  const off=S.nodes.filter(n=>n.status==='offline').length;
+  return`
+  <div class="stat-g">
+    <div class="stat-c"><div class="stat-v" style="color:var(--blue)">${S.nodes.length}</div><div class="stat-k">節點</div></div>
+    <div class="stat-c"><div class="stat-v" style="color:var(--cyan)">${S.conns.length}</div><div class="stat-k">連線</div></div>
+    <div class="stat-c"><div class="stat-v" style="color:var(--green)">${online}</div><div class="stat-k">上線</div></div>
+    <div class="stat-c"><div class="stat-v" style="color:var(--red)">${off}</div><div class="stat-k">離線</div></div>
+  </div>
+  ${warn>0?`<div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:var(--r1);padding:7px 10px;font-size:10px;color:var(--yellow);margin-bottom:10px">⚠ ${warn} 個裝置狀態異常</div>`:''}
+  <div class="sb-section-title" style="margin-bottom:6px">專案列表</div>
+  <div id="proj-list-inner"></div>
+  <button class="btn-ghost" style="width:100%;margin-top:6px;font-size:10px" onclick="openNewProjModal()">＋ 新增專案</button>`;
+}
+
+function showConnProps(connId){
+  const c=S.conns.find(x=>x.id===connId);if(!c)return;
+  const fn=getNode(c.from),tn=getNode(c.to);
+  const body=document.getElementById('rp-body');const title=document.getElementById('rp-title');
+  title.textContent='連線屬性';
+  const ct=CONN_TYPES.find(x=>x.id===c.type)||CONN_TYPES[0];
+  body.innerHTML=`
+  <div style="padding:9px;background:var(--glass);border:1px solid var(--border);border-radius:var(--r2);margin-bottom:12px">
+    <div style="font-size:11px;color:var(--t1);font-weight:600">${fn?fn.label:'?'} → ${tn?tn.label:'?'}</div>
+    <div style="font-size:9px;color:var(--t3);font-family:var(--fm);margin-top:3px">${ct.lbl}</div>
+  </div>
+  <div class="pg"><span class="pl">連線標籤</span>
+    <input class="pi" value="${esc(c.label)}" oninput="S.conns.find(x=>x.id==='${connId}').label=this.value;renderAll()" placeholder="標籤…">
+  </div>
+  <div class="pg"><span class="pl">頻寬</span>
+    <input class="pi" value="${esc(c.bw||ct.bw)}" oninput="S.conns.find(x=>x.id==='${connId}').bw=this.value;renderAll()" placeholder="1Gbps">
+  </div>
+  <div class="pg"><span class="pl">連線類型</span>
+    <select class="ps" onchange="const conn=S.conns.find(x=>x.id==='${connId}');const ct2=CONN_TYPES.find(x=>x.id===this.value)||CONN_TYPES[0];conn.type=this.value;conn.color=ct2.col;conn.dash=ct2.dash;conn.arrow=ct2.arrow;renderAll()">
+      ${CONN_TYPES.map(ct2=>`<option value="${ct2.id}"${c.type===ct2.id?' selected':''}>${ct2.lbl}</option>`).join('')}
+    </select>
+  </div>
+  <div class="pg"><span class="pl">箭頭方向</span>
+    <select class="ps" onchange="const conn=S.conns.find(x=>x.id==='${connId}');if(this.value==='uni'){conn.arrow=true;conn.arrowStart=false;}else if(this.value==='bi'){conn.arrow=true;conn.arrowStart=true;}else{conn.arrow=false;conn.arrowStart=false;}renderAll()">
+      <option value="uni"${!c.arrowStart&&c.arrow?' selected':''}>單向 →</option>
+      <option value="bi"${c.arrowStart?' selected':''}>雙向 ↔</option>
+      <option value="none"${!c.arrow&&!c.arrowStart?' selected':''}>無箭頭</option>
+    </select>
+  </div>
+  <div style="display:flex;gap:5px;margin-top:6px">
+    <button class="btn-ghost" style="flex:1;font-size:10px;color:var(--red);border-color:rgba(239,68,68,0.3)" onclick="deleteConn('${connId}')">⌫ 刪除連線</button>
+  </div>`;
+  const rp=document.getElementById('rp');
+  if(window.innerWidth<=768){rp.classList.remove('hidden');rp.classList.add('open');}
+}
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+// ═══════════════════════════════════════════════════════════════
+//  CONTEXT MENU
+// ═══════════════════════════════════════════════════════════════
+function showCtx(x,y){
+  const m=document.getElementById('ctx');
+  m.style.display='block';m.style.left=x+'px';m.style.top=y+'px';
+  const r=m.getBoundingClientRect();
+  if(r.right>window.innerWidth)m.style.left=(x-r.width)+'px';
+  if(r.bottom>window.innerHeight)m.style.top=(y-r.height)+'px';
+  setTimeout(()=>document.addEventListener('click',hideCtx,{once:true}),50);
+}
+function hideCtx(){document.getElementById('ctx').style.display='none'}
+function ctx_duplicate(){hideCtx();doDuplicate()}
+function ctx_startConnect(){hideCtx();setTool('connect');if(S.selIds[0]){S.connecting={fromId:S.selIds[0]};document.getElementById('conn-mode-bar').classList.add('show');notify('🔗','點擊目標節點以完成連線');}}
+function ctx_editLabel(){hideCtx();const n=getNode(S.selIds[0]);if(!n)return;const v=prompt('裝置名稱:',n.label);if(v!==null){saveHistory();n.label=v;renderAll();updateRpPanel();markDirty();}}
+function ctx_editIP(){hideCtx();const n=getNode(S.selIds[0]);if(!n)return;const v=prompt('IP 位址:',n.ip||'');if(v!==null){saveHistory();n.ip=v;renderAll();updateRpPanel();markDirty();}}
+function ctx_bringFront(){hideCtx();const i=S.nodes.findIndex(n=>n.id===S.selIds[0]);if(i<0)return;S.nodes.push(S.nodes.splice(i,1)[0]);saveHistory();renderAll();markDirty();}
+function ctx_sendBack(){hideCtx();const i=S.nodes.findIndex(n=>n.id===S.selIds[0]);if(i<0)return;S.nodes.unshift(S.nodes.splice(i,1)[0]);saveHistory();renderAll();markDirty();}
+function ctx_toggleStatus(){
+  hideCtx();const seq={online:'warning',warning:'offline',offline:'online',unknown:'online'};
+  S.selIds.forEach(id=>{const n=getNode(id);if(n)n.status=seq[n.status]||'online'});
+  saveHistory();renderAll();updateRpPanel();markDirty();
+}
+function ctx_addNote(){
+  hideCtx();const n=getNode(S.selIds[0]);if(!n)return;
+  const v=prompt('備註:',n.note||'');if(v!==null){saveHistory();n.note=v;renderAll();updateRpPanel();markDirty();}
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ZONE OPERATIONS
+// ═══════════════════════════════════════════════════════════════
+let pendingZone = null;
+
+// 工具列「🏷 新增區域框」按鈕 — 直接切換到 zone 工具，提示拖曳
+function addZoneFromBtn() {
+  setTool('zone');
+  pendingZone = null;
+  notify('▣', '請在畫布上拖曳以建立區域框');
+}
+
+// 從「群組選取節點為區域」或「拖曳完成後」呼叫 — 帶入已知的座標 rect
+function openZoneModal(rect) {
+  pendingZone = rect;
+  document.getElementById('z-name').value = '';
+  document.getElementById('z-note').value = '';
+  document.getElementById('mo-zone').classList.add('open');
+  document.querySelectorAll('#z-colors .cchip').forEach((c, i) => c.classList.toggle('on', i === 0));
+  // 自動聚焦名稱輸入框
+  setTimeout(() => {
+    const inp = document.getElementById('z-name');
+    if (inp) inp.focus();
+  }, 80);
+}
+
+// 按下「確認建立」— 此時 pendingZone 一定有 x/y/w/h（由拖曳或群組帶入）
+function finishAddZone() {
+  const name = document.getElementById('z-name').value.trim() || '區域';
+  const note = document.getElementById('z-note').value.trim() || '';
+  const activeCh = document.querySelector('#z-colors .cchip.on');
+     const color = activeCh ? (activeCh.dataset.color || activeCh.style.background) : '#2d9cfe';
+  closeModal('mo-zone');
+
+  if (pendingZone && pendingZone.w) {
+    // 正常路徑：有座標資料，直接建立
+    saveHistory();
+    S.zones.push({
+      id: 'z' + Date.now(),
+      x: pendingZone.x,
+      y: pendingZone.y,
+      w: pendingZone.w,
+      h: pendingZone.h,
+      label: name,
+      note: note,
+      color: color
+    });
+    pendingZone = null;
+    renderAll();
+    notify('▣', '已建立區域框：' + name);
+    markDirty();
+  } else {
+    // 沒有座標（理論上不應發生，加保護）
+    notify('⚠', '請先在畫布上拖曳選定範圍');
+  }
+}
+
+function updateZoneDrawPreview() {
+  let pp = document.getElementById('zone-preview');
+  if (!pp) {
+    pp = mkSVG('rect');
+    pp.id = 'zone-preview';
+    pp.setAttribute('fill', 'rgba(45,156,254,0.07)');
+    pp.setAttribute('stroke', 'rgba(45,156,254,0.5)');
+    pp.setAttribute('stroke-width', '1.5');
+    pp.setAttribute('stroke-dasharray', '5 3');
+    pp.setAttribute('pointer-events', 'none');
+    svgEl.appendChild(pp);
+  }
+  const zd = S.zoneDraw;
+  const tx = `translate(${S.pan.x},${S.pan.y}) scale(${S.zoom})`;
+  pp.setAttribute('transform', tx);
+  pp.setAttribute('x', Math.min(zd.x0, zd.x1));
+  pp.setAttribute('y', Math.min(zd.y0, zd.y1));
+  pp.setAttribute('width', Math.abs(zd.x1 - zd.x0));
+  pp.setAttribute('height', Math.abs(zd.y1 - zd.y0));
+  pp.setAttribute('rx', '12');
+}
+
+function editZone(id) {
+  const z = S.zones.find(x => x.id === id);
+  if (!z) return;
+  // 填入現有資料到 zone modal
+  document.getElementById('z-name').value = z.label || '';
+  document.getElementById('z-note').value = z.note || '';
+  // 標記目前顏色的色塊為選取狀態
+  document.querySelectorAll('#z-colors .cchip').forEach(c => {
+    c.classList.toggle('on', (c.dataset.color || c.style.background) === z.color);
+  });
+  // 若找不到匹配色塊，預設選第一個
+  const anyOn = document.querySelector('#z-colors .cchip.on');
+  if (!anyOn) {
+    const first = document.querySelector('#z-colors .cchip');
+    if (first) first.classList.add('on');
+  }
+  // 開啟 modal，並將確認按鈕切換為「更新」模式
+  const modal = document.getElementById('mo-zone');
+  const confirmBtn = modal.querySelector('.btn-pri');
+  const originalOnclick = confirmBtn.getAttribute('onclick');
+  confirmBtn.setAttribute('onclick', `applyEditZone('${id}')`);
+  modal.querySelector('h2').textContent = '編輯區域框';
+  modal.classList.add('open');
+  setTimeout(() => { const inp = document.getElementById('z-name'); if (inp) inp.focus(); }, 80);
+  // 關閉時還原按鈕（取消按鈕也要還原）
+  const cancelBtn = modal.querySelector('.btn-ghost');
+  const origCancel = cancelBtn.getAttribute('onclick');
+  cancelBtn.setAttribute('onclick', `closeModal('mo-zone');restoreZoneModal()`);
+  window._zoneModalRestore = () => {
+    confirmBtn.setAttribute('onclick', originalOnclick);
+    cancelBtn.setAttribute('onclick', origCancel);
+    modal.querySelector('h2').textContent = '新增區域框';
+  };
+}
+
+function applyEditZone(id) {
+  const z = S.zones.find(x => x.id === id);
+  if (!z) { closeModal('mo-zone'); restoreZoneModal(); return; }
+  const name = document.getElementById('z-name').value.trim() || z.label;
+  const note = document.getElementById('z-note').value.trim();
+  const activeCh = document.querySelector('#z-colors .cchip.on');
+  const color = activeCh ? (activeCh.dataset.color || activeCh.style.background) : z.color;
+  saveHistory();
+  z.label = name;
+  z.note = note;
+  z.color = color;
+  closeModal('mo-zone');
+  restoreZoneModal();
+  renderAll();
+  markDirty();
+  notify('▣', '已更新區域框：' + name);
+}
+
+function restoreZoneModal() {
+  if (window._zoneModalRestore) { window._zoneModalRestore(); window._zoneModalRestore = null; }
+}
+// ═══════════════════════════════════════════════════════════════
+//  TEXT LABELS
+// ═══════════════════════════════════════════════════════════════
+let pendingLabelPos=null;
+function openLabelModal(pt){
+  pendingLabelPos=pt;
+  document.getElementById('lbl-text').value='';
+  document.getElementById('mo-label').classList.add('open');
+  document.querySelectorAll('#lbl-colors .cchip').forEach((c,i)=>c.classList.toggle('on',i===0));
+}
+function finishAddLabel(){
+  const text=document.getElementById('lbl-text').value.trim();if(!text)return;
+  const size=parseInt(document.getElementById('lbl-size').value)||14;
+  const activeCh=document.querySelector('#lbl-colors .cchip.on');
+     const color=activeCh?(activeCh.dataset.color||activeCh.style.background):'#dce9ff';
+  closeModal('mo-label');
+  if(!S.labels)S.labels=[];
+  if(pendingLabelPos){
+    saveHistory();
+    S.labels.push({id:'lb'+Date.now(),x:pendingLabelPos.x,y:pendingLabelPos.y,text,size,color});
+    pendingLabelPos=null;renderAll();markDirty();setTool('select');notify('T','文字標籤已放置');
+  } else {
+    // store as pending so next canvas click places it
+    S.labelPending={text,size,color};notify('T','點擊畫布放置文字標籤');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  MINIMAP
+// ═══════════════════════════════════════════════════════════════
+function updateMinimap(){
+  const mmsvg=document.getElementById('mmsvg');if(!mmsvg)return;
+  while(mmsvg.children.length>1)mmsvg.removeChild(mmsvg.lastChild);
+  const W=148,H=94;
+  const hasNodes=S.nodes.length>0;const hasZones=S.zones.length>0;
+  if(!hasNodes&&!hasZones)return;
+  const allX=[],allXe=[],allY=[],allYe=[];
+  if(hasNodes){S.nodes.forEach(n=>{allX.push(n.x);allXe.push(n.x+n.w);allY.push(n.y);allYe.push(n.y+n.h)});}
+  if(hasZones){S.zones.forEach(z=>{allX.push(z.x);allXe.push(z.x+z.w);allY.push(z.y);allYe.push(z.y+z.h)});}
+  const minX=Math.min(...allX)-20,minY=Math.min(...allY)-20;
+  const maxX=Math.max(...allXe)+20,maxY=Math.max(...allYe)+20;
+  const sc=Math.min(W/(maxX-minX),H/(maxY-minY));
+  // Draw zones on minimap
+  S.zones.forEach(z=>{
+    const zr=mkSVG('rect');
+    zr.setAttribute('x',(z.x-minX)*sc);zr.setAttribute('y',(z.y-minY)*sc);
+    zr.setAttribute('width',z.w*sc);zr.setAttribute('height',z.h*sc);
+    zr.setAttribute('rx','3');zr.setAttribute('fill',z.color+'22');
+    zr.setAttribute('stroke',z.color+'66');zr.setAttribute('stroke-width','0.8');
+    mmsvg.insertBefore(zr,document.getElementById('mmvp'));
+  });
+  S.conns.forEach(c=>{
+    const f=S.nodes.find(n=>n.id===c.from),t=S.nodes.find(n=>n.id===c.to);if(!f||!t)return;
+    const l=mkSVG('line');
+    l.setAttribute('x1',(f.x+f.w/2-minX)*sc);l.setAttribute('y1',(f.y+f.h/2-minY)*sc);
+    l.setAttribute('x2',(t.x+t.w/2-minX)*sc);l.setAttribute('y2',(t.y+t.h/2-minY)*sc);
+    l.setAttribute('stroke','rgba(45,156,254,0.3)');l.setAttribute('stroke-width','1');
+    mmsvg.insertBefore(l,document.getElementById('mmvp'));
+  });
+  S.nodes.forEach(n=>{
+    const dot=mkSVG('circle');
+    dot.setAttribute('cx',(n.x+n.w/2-minX)*sc);dot.setAttribute('cy',(n.y+n.h/2-minY)*sc);
+    dot.setAttribute('r','2.5');dot.setAttribute('fill',n.color||'#2d9cfe');
+    mmsvg.insertBefore(dot,document.getElementById('mmvp'));
+  });
+  const cw=document.getElementById('cw');
+  const vx=(-S.pan.x/S.zoom-minX)*sc,vy=(-S.pan.y/S.zoom-minY)*sc;
+  const vw=(cw.clientWidth/S.zoom)*sc,vh=(cw.clientHeight/S.zoom)*sc;
+  const vp=document.getElementById('mmvp');
+  vp.setAttribute('x',vx);vp.setAttribute('y',vy);vp.setAttribute('width',vw);vp.setAttribute('height',vh);
+}
+
+function minimapClick(ev){
+  const mm=document.getElementById('mm');const r=mm.getBoundingClientRect();
+  const mx=(ev.clientX-r.left)/r.width,my=(ev.clientY-r.top)/r.height;
+  if(S.nodes.length===0)return;
+  const xs=S.nodes.map(n=>n.x),xe=S.nodes.map(n=>n.x+n.w);
+  const ys=S.nodes.map(n=>n.y),ye=S.nodes.map(n=>n.y+n.h);
+  const minX=Math.min(...xs)-20,minY=Math.min(...ys)-20;
+  const maxX=Math.max(...xe)+20,maxY=Math.max(...ye)+20;
+  const cw=document.getElementById('cw');
+  const cx=(minX+(maxX-minX)*mx)*S.zoom;const cy=(minY+(maxY-minY)*my)*S.zoom;
+  S.pan.x=cw.clientWidth/2-cx;S.pan.y=cw.clientHeight/2-cy;renderAll();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SIDEBAR TABS / TOGGLE
+// ═══════════════════════════════════════════════════════════════
+function sbTab(idx,el){
+  document.querySelectorAll('.sb-tab').forEach(t=>t.classList.remove('act'));
+  document.querySelectorAll('.sb-panel').forEach(p=>p.classList.remove('act'));
+  el.classList.add('act');document.getElementById('sbp-'+idx).classList.add('act');
+}
+
+function filterDevices(q){
+  const container=document.getElementById('dev-search-result');container.innerHTML='';
+  if(!q){container.innerHTML='<div style="font-size:10px;color:var(--t3);padding:4px;text-align:center">輸入關鍵字搜尋設備</div>';return;}
+  q=q.toLowerCase();
+  const results=[];
+  Object.entries(DEVICES).forEach(([k,v])=>{if(v.lbl.includes(q)||k.includes(q))results.push([k,v])});
+  S.customDevices.forEach(d=>{if(d.lbl.toLowerCase().includes(q))results.push(['custom_'+d.id,d])});
+  if(results.length===0){container.innerHTML='<div style="font-size:10px;color:var(--t3);padding:4px;text-align:center">找不到符合設備</div>';return;}
+  const grid=document.createElement('div');grid.className='dev-grid';
+  results.forEach(([k,v])=>grid.appendChild(makeDevItem(k,v)));container.appendChild(grid);
+}
+
+// Sidebar desktop toggle — always callable, survives X-close
+function toggleSbDesktop(){
+  const sb=document.getElementById('sb');const tog=document.getElementById('sb-tog');
+  const collapsed=sb.classList.toggle('collapsed');
+  tog.textContent=collapsed?'▶':'◀';
+  S._sbCollapsed=collapsed;
+  const openBtn=document.getElementById('sb-open-btn');
+  if(openBtn)openBtn.style.display=collapsed?'flex':'none';
+}
+// Called from toolbar button (always opens)
+function showSbDesktop(){
+  const sb=document.getElementById('sb');const tog=document.getElementById('sb-tog');
+  sb.classList.remove('collapsed');
+  if(tog)tog.textContent='◀';
+  S._sbCollapsed=false;
+  const openBtn=document.getElementById('sb-open-btn');
+  if(openBtn)openBtn.style.display='none';
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CUSTOM DEVICES
+// ═══════════════════════════════════════════════════════════════
+function openCustomDevModal(){
+  buildChips('cd-colors');
+  document.getElementById('cd-name').value='';
+  document.getElementById('cd-icon').value='⬡';
+  document.getElementById('mo-custom').classList.add('open');
+}
+function saveCustomDevice(){
+  const name=document.getElementById('cd-name').value.trim();
+  const icon=document.getElementById('cd-icon').value.trim()||'⬡';
+  const cat=document.getElementById('cd-cat').value;
+  const activeCh=document.querySelector('#cd-colors .cchip.on');
+     const color=activeCh?(activeCh.dataset.color||activeCh.style.background):'#2d9cfe';
+  if(!name){alert('請填入裝置名稱');return;}
+  const id='c'+Date.now();
+  S.customDevices.push({id,lbl:name,ico:icon,col:color,cat});
+  closeModal('mo-custom');renderCustomDevices();saveStorage();notify(icon,'已建立：'+name);
+}
+function buildChips(containerId){
+  const c=document.getElementById(containerId);if(!c)return;
+  c.innerHTML='';
+  CHIP_COLORS.forEach((color,i)=>{
+    const el=document.createElement('div');el.className='cchip'+(i===0?' on':'');
+    el.style.background=color;
+    el.dataset.color=color;
+    el.onclick=()=>{c.querySelectorAll('.cchip').forEach(x=>x.classList.remove('on'));el.classList.add('on')};
+    c.appendChild(el);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  PROJECTS
+// ═══════════════════════════════════════════════════════════════
+const DEPT_COLORS={IT:'#2d9cfe',OT:'#f97316',DMZ:'#ef4444',Cloud:'#60a5fa',Campus:'#22d3a0',DC:'#a855f7',Store:'#fbbf24',Factory:'#f97316',Custom:'#94a3b8'};
+
+function createDefaultProject(){
+  const proj={id:'p'+Date.now(),name:'總公司網路架構',dept:'IT',scale:'medium',
+    nodes:[],conns:[],zones:[],labels:[],color:'#2d9cfe',createdAt:new Date().toISOString()};
+  S.projects.push(proj);S.activeProj=proj.id;
+  document.getElementById('proj-name').value=proj.name;
+  loadSampleTopology();saveProjState();
+}
+
+function loadSampleTopology(){
+  const nDefs=[
+    {type:'internet',  x:360,y:10,  label:'Internet',         ip:'',          status:'online', color:'#38bdf8'},
+    {type:'cloud_aws', x:550,y:10,  label:'AWS Cloud',         ip:'',          status:'online', color:'#fb923c'},
+    {type:'isp',       x:170,y:10,  label:'中華電信 ISP',       ip:'',          status:'online', color:'#60a5fa'},
+    {type:'firewall',  x:340,y:120, label:'防火牆 FW-01',       ip:'203.0.113.1',status:'online',color:'#f97316'},
+    {type:'ids',       x:510,y:120, label:'IDS/IPS',            ip:'10.0.0.5',  status:'online', color:'#fb923c'},
+    {type:'router',    x:220,y:230, label:'核心路由 R-01',      ip:'10.0.0.1',  status:'online', color:'#2d9cfe'},
+    {type:'router',    x:460,y:230, label:'備援路由 R-02',      ip:'10.0.0.2',  status:'warning',color:'#2d9cfe'},
+    {type:'l3switch',  x:110,y:340, label:'核心三層 SW-C1',     ip:'10.1.0.1',  status:'online', color:'#00bcd4',vlan:'Trunk'},
+    {type:'switch',    x:320,y:340, label:'分支交換 SW-02',     ip:'10.1.0.2',  status:'online', color:'#00e5cc'},
+    {type:'switch',    x:540,y:340, label:'DMZ 交換 SW-03',    ip:'10.2.0.1',  status:'online', color:'#00e5cc'},
+    {type:'dc_server', x:20, y:460, label:'AD/DC Server',       ip:'10.1.1.10', status:'online', color:'#5b21b6',dept:'IT'},
+    {type:'file_server',x:130,y:460,label:'檔案伺服器',          ip:'10.1.1.11', status:'online', color:'#8b5cf6',dept:'IT'},
+    {type:'erp_ding',  x:240,y:460, label:'鼎新 ERP',           ip:'10.1.1.20', status:'online', color:'#ef4444',dept:'業務'},
+    {type:'ap',        x:350,y:460, label:'AP-01 3F',           ip:'10.1.2.1',  status:'online', color:'#34d399'},
+    {type:'ap',        x:450,y:460, label:'AP-02 4F',           ip:'10.1.2.2',  status:'online', color:'#34d399'},
+    {type:'web_server',x:510,y:460, label:'Web Server',          ip:'10.2.1.10', status:'online', color:'#9333ea',dept:'DMZ'},
+    {type:'mail_server',x:620,y:460,label:'Mail Server',         ip:'10.2.1.11', status:'online', color:'#7c3aed',dept:'DMZ'},
+    {type:'pc',        x:20, y:570, label:'工程師 PC',           ip:'10.1.1.50', status:'online', color:'#22d3a0',dept:'IT'},
+    {type:'pc',        x:130,y:570, label:'會計 PC',             ip:'10.1.1.51', status:'online', color:'#22d3a0',dept:'Finance'},
+    {type:'nas',       x:240,y:570, label:'NAS-01',              ip:'10.1.3.1',  status:'online', color:'#fbbf24',dept:'IT'},
+    {type:'nvr',       x:350,y:570, label:'NVR 監控',            ip:'10.1.4.1',  status:'online', color:'#f472b6',dept:'安全'},
+    {type:'ip_cam',    x:460,y:570, label:'IP 攝影機 ×4',       ip:'10.1.4.10', status:'online', color:'#ec4899',dept:'安全'},
+    {type:'voip_phone',x:560,y:570, label:'VoIP 電話',           ip:'10.1.5.1',  status:'online', color:'#4ade80',dept:'總務'},
+    {type:'ups',       x:660,y:460, label:'UPS 電源',            ip:'',          status:'online', color:'#facc15',dept:'機房'},
+    {type:'access_ctrl',x:0, y:570, label:'門禁主機',             ip:'10.1.6.1',  status:'online', color:'#84cc16',dept:'安全'},
+  ];
+  S.nc=0;
+  S.nodes=nDefs.map((d,i)=>({
+    id:'ns'+i,w:96,h:82,mask:'255.255.255.0',vlan:d.vlan||'',port:'',model:'',gateway:'',note:'',
+    label:d.label||DEVICES[d.type]?.lbl||d.type,...d
+  }));
+  const c=[
+    [2,3,'eth'],[0,3,'eth'],[1,3,'fiber'],
+    [3,4,'eth'],[3,5,'fiber'],[3,6,'fiber'],
+    [5,7,'fiber'],[5,8,'eth'],[6,9,'eth'],
+    [7,10,'eth'],[7,11,'eth'],[7,12,'eth'],[7,17,'eth'],[7,18,'eth'],
+    [8,13,'wifi'],[8,14,'wifi'],[8,19,'eth'],[8,20,'eth'],[8,21,'eth'],[8,22,'eth'],
+    [9,15,'eth'],[9,16,'eth'],[20,21,'eth'],[3,23,'eth'],[7,24,'eth'],
+  ];
+  S.conns=c.map(([fi,ti,type])=>{
+    const ct=CONN_TYPES.find(x=>x.id===type)||CONN_TYPES[0];
+    if(!S.nodes[fi]||!S.nodes[ti])return null;
+    return{id:'cs'+fi+'_'+ti,from:S.nodes[fi].id,to:S.nodes[ti].id,type,color:ct.col,dash:ct.dash,arrow:ct.arrow,bw:ct.bw,label:''};
+  }).filter(Boolean);
+  S.zones=[
+    {id:'z1',x:0,y:435,w:230,h:185,label:'IT 核心區',note:'VLAN 10',color:'#2d9cfe'},
+    {id:'z2',x:490,y:435,w:185,h:185,label:'DMZ 隔離區',note:'VLAN 99',color:'#f97316'},
+    {id:'z3',x:240,y:435,w:235,h:185,label:'辦公區域',note:'VLAN 20/30',color:'#22d3a0'},
+    {id:'z4',x:640,y:435,w:100,h:100,label:'機房電源',note:'',color:'#fbbf24'},
+  ];
+  S.labels=[];
+  setTimeout(()=>fitView(),200);
+}
+
+function openNewProjModal(){document.getElementById('m-pname').value='';document.getElementById('mo-newproj').classList.add('open')}
+
+function openTemplateModal(){
+  const body=document.getElementById('mo-template-body');body.innerHTML='';
+  const cats={};
+  TOPOLOGY_TEMPLATES.forEach(t=>{const c=t.category||'其他';if(!cats[c])cats[c]=[];cats[c].push(t)});
+  Object.entries(cats).forEach(([catName,tmpls])=>{
+    const title=document.createElement('div');
+    title.className='sb-section-title';title.style.marginTop='6px';title.textContent=catName;
+    body.appendChild(title);
+    tmpls.forEach(t=>{
+      const btn=document.createElement('button');
+      btn.className='btn-ghost';
+      btn.style.cssText='text-align:left;padding:10px 13px;width:100%;font-size:11px';
+      btn.innerHTML=`<div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px;width:28px;text-align:center;flex-shrink:0">${t.icon}</span><div style="flex:1;min-width:0"><div style="color:var(--t1);font-weight:600;font-size:12px">${t.name}</div><div style="font-size:9.5px;color:var(--t3);margin-top:2px">${t.desc}</div></div><button onclick="event.stopPropagation();closeModal('mo-template');insertTemplate(TOPOLOGY_TEMPLATES.find(x=>x.id==='${t.id}'))" style="background:linear-gradient(135deg,var(--blue),rgba(45,156,254,0.6));border:none;color:#fff;padding:5px 12px;border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0">套用</button></div>`;
+      body.appendChild(btn);
+    });
+  });
+  document.getElementById('mo-template').classList.add('open');
+}
+function createProject(){
+  const name=document.getElementById('m-pname').value.trim()||'新專案';
+  const dept=document.getElementById('m-pdept').value;
+  const scale=document.getElementById('m-pscale').value;
+  saveProjState();
+  const proj={id:'p'+Date.now(),name,dept,scale,nodes:[],conns:[],zones:[],labels:[],
+    color:DEPT_COLORS[dept]||'#2d9cfe',createdAt:new Date().toISOString()};
+  S.projects.push(proj);S.activeProj=proj.id;
+  S.nodes=[];S.conns=[];S.zones=[];S.labels=[];S.selIds=[];S.history=[];S.future=[];
+  document.getElementById('proj-name').value=name;
+  closeModal('mo-newproj');renderAll();updateRpPanel();updateProjList();notify('✚','已建立：'+name);
+}
+function saveProjState(){
+  const p=S.projects.find(x=>x.id===S.activeProj);
+  if(p){p.nodes=JSON.parse(JSON.stringify(S.nodes));p.conns=JSON.parse(JSON.stringify(S.conns));p.zones=JSON.parse(JSON.stringify(S.zones));p.labels=JSON.parse(JSON.stringify(S.labels||[]));}
+}
+function loadProject(id){
+  saveProjState();const p=S.projects.find(x=>x.id===id);if(!p)return;
+  S.activeProj=id;
+  S.nodes=JSON.parse(JSON.stringify(p.nodes||[]));S.conns=JSON.parse(JSON.stringify(p.conns||[]));
+  S.zones=JSON.parse(JSON.stringify(p.zones||[]));S.labels=JSON.parse(JSON.stringify(p.labels||[]));
+  S.selIds=[];S.history=[];S.future=[];
+  document.getElementById('proj-name').value=p.name;
+  renderAll();updateRpPanel();updateProjList();fitView();notify('📂','已載入：'+p.name);updateUndoRedoBtns();
+}
+function deleteProject(id){
+  if(S.projects.length<=1){notify('⚠','至少保留一個專案');return;}
+  if(!confirm('確定刪除此專案？'))return;
+  S.projects=S.projects.filter(p=>p.id!==id);
+  if(S.activeProj===id){S.activeProj=S.projects[0].id;loadProject(S.activeProj);}
+  updateProjList();notify('⌫','專案已刪除');
+}
+function updateProjList(){
+  const container=document.getElementById('proj-list-inner');if(!container)return;
+  container.innerHTML='';
+  S.projects.forEach(p=>{
+    const el=document.createElement('div');
+    el.className='proj-list-item'+(p.id===S.activeProj?' on':'');
+    el.innerHTML=`
+      <div class="proj-dot" style="background:${p.color}"></div>
+      <div style="flex:1;min-width:0">
+        <div class="proj-name-txt">${esc(p.name)}</div>
+        <div class="proj-meta">${p.dept} · ${p.id===S.activeProj?S.nodes.length:p.nodes.length}節點</div>
+      </div>
+      <button style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:11px;padding:2px 5px;border-radius:4px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--t3)'" onclick="event.stopPropagation();deleteProject('${p.id}')" title="刪除">✕</button>`;
+    el.onclick=()=>loadProject(p.id);
+    container.appendChild(el);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  STORAGE — Auto-save with dirty flag
+// ═══════════════════════════════════════════════════════════════
+function markDirty(){
+  S.dirty=true;setSaveDot(true);
+}
+function setSaveDot(dirty){
+  const dot=document.getElementById('save-dot');
+  if(dot)dot.classList.toggle('dirty',dirty);
+}
+function manualSave(){
+  saveProjState();
+  saveStorage();
+  S.dirty=false;setSaveDot(false);
+  notify('💾','已儲存');
+}
+function saveStorage(){
+  try{
+    saveProjState();
+    const data=JSON.stringify({
+      projects:S.projects,activeProj:S.activeProj,
+      zoom:S.zoom,pan:S.pan,nc:S.nc,customDevices:S.customDevices
+    });
+    localStorage.setItem('nettopo_v5',data);
+  }catch(e){
+    // Handle QuotaExceededError gracefully
+    if(e.name==='QuotaExceededError'||e.code===22){
+      // Try to clear old data and retry
+      try{
+        localStorage.removeItem('nettopo_v4');
+        localStorage.setItem('nettopo_v5',JSON.stringify({
+          projects:[S.projects.find(p=>p.id===S.activeProj)].filter(Boolean),
+          activeProj:S.activeProj,zoom:S.zoom,pan:S.pan,nc:S.nc,customDevices:S.customDevices
+        }));
+        notify('⚠','儲存空間不足，僅保留當前專案');
+      }catch(e2){notify('⚠','本機儲存失敗，請手動匯出 JSON 備份');}
+    }
+  }
+}
+function loadStorage(){
+  try{
+    let raw=localStorage.getItem('nettopo_v5')||localStorage.getItem('nettopo_v4');
+    if(!raw)return;
+    const d=JSON.parse(raw);
+    S.projects=d.projects||[];S.activeProj=d.activeProj;
+    S.zoom=d.zoom||1;S.pan=d.pan||{x:60,y:40};S.nc=d.nc||0;
+    S.customDevices=d.customDevices||[];
+    // 若 activeProj 找不到，fallback 到第一個專案
+    let p=S.projects.find(x=>x.id===S.activeProj);
+    if(!p&&S.projects.length>0){p=S.projects[0];S.activeProj=p.id;}
+    if(p){
+      S.nodes=JSON.parse(JSON.stringify(p.nodes||[]));S.conns=JSON.parse(JSON.stringify(p.conns||[]));
+      S.zones=JSON.parse(JSON.stringify(p.zones||[]));S.labels=JSON.parse(JSON.stringify(p.labels||[]));
+      document.getElementById('proj-name').value=p.name;
+    }
+    updateZoomVal();renderCustomDevices();
+  }catch(e){console.warn('loadStorage error:',e);}
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  EXPORT / IMPORT
+// ═══════════════════════════════════════════════════════════════
+function openExportModal(){document.getElementById('mo-export').classList.add('open')}
+
+function doExport(fmt){
+  closeModal('mo-export');
+  const pname=document.getElementById('proj-name').value||'topology';
+  if(fmt==='import'){document.getElementById('import-file').click();return;}
+  if(fmt==='save'){
+    saveProjState();
+    const activeProj=S.projects.find(x=>x.id===S.activeProj);
+    const blob=new Blob([JSON.stringify({version:2,project:activeProj},null,2)],{type:'application/json'});
+    dlBlob(blob,pname+'.ntp');notify('💾','已儲存專案檔');return;
+  }
+  if(fmt==='json'){
+    saveProjState();
+    const blob=new Blob([JSON.stringify({version:2,projects:S.projects,activeProj:S.activeProj,customDevices:S.customDevices},null,2)],{type:'application/json'});
+    dlBlob(blob,pname+'_backup.json');notify('📦','已匯出備份 JSON');return;
+  }
+  if(fmt==='svg'){
+    const clone=svgEl.cloneNode(true);
+    clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+    clone.style.background='#04090f';
+    const style=document.createElementNS(NS,'style');
+    style.textContent=`@import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=JetBrains+Mono:wght@400&display=swap');`;
+    clone.insertBefore(style,clone.firstChild);
+    const blob=new Blob([clone.outerHTML],{type:'image/svg+xml'});
+    dlBlob(blob,pname+'.svg');notify('📐','已匯出 SVG');return;
+  }
+  if(fmt==='png'){
+    const cw=document.getElementById('cw');const w=cw.clientWidth*2,h=cw.clientHeight*2;
+    const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+    const ctx2=canvas.getContext('2d');
+    ctx2.fillStyle='#04090f';ctx2.fillRect(0,0,w,h);
+    const data=new XMLSerializer().serializeToString(svgEl);
+    const img=new Image();
+    img.onload=()=>{ctx2.drawImage(img,0,0,w,h);canvas.toBlob(blob=>{dlBlob(blob,pname+'.png');notify('🖼','已匯出 PNG');},'image/png')};
+    img.onerror=()=>notify('⚠','PNG 匯出失敗，請改用 SVG');
+    img.src='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(data)));
+  }
+}
+
+function handleImport(ev){
+  const file=ev.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(d.project){
+        // Single project .ntp file
+        saveProjState();
+        const proj=d.project;proj.id='p'+Date.now();
+        S.projects.push(proj);loadProject(proj.id);
+        renderCustomDevices();updateProjList();notify('📥','已匯入專案：'+proj.name);
+      } else if(d.projects){
+        S.projects=d.projects;S.customDevices=d.customDevices||S.customDevices;
+        if(d.activeProj&&S.projects.find(p=>p.id===d.activeProj)){loadProject(d.activeProj);}
+        else if(S.projects.length){loadProject(S.projects[0].id);}
+        renderCustomDevices();updateProjList();notify('📥','已匯入 '+S.projects.length+' 個專案');
+      }
+    }catch(err){notify('⚠','匯入失敗：'+err.message);}
+  };
+  reader.readAsText(file);ev.target.value='';
+}
+
+function dlBlob(blob,name){
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download=name;document.body.appendChild(a);a.click();
+  document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  MODAL HELPERS
+// ═══════════════════════════════════════════════════════════════
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+  if(id==='mo-zone')restoreZoneModal();
+}
+document.querySelectorAll('.mo').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m){m.classList.remove('open');if(m.id==='mo-zone')restoreZoneModal();}})});
+
+function confirmClear(){
+  if(S.nodes.length===0&&S.zones.length===0&&(S.labels||[]).length===0)return;
+  if(confirm('確定清空畫布上所有元件？此操作可復原 (Ctrl+Z)。')){
+    saveHistory();S.nodes=[];S.conns=[];S.zones=[];S.labels=[];S.selIds=[];
+    renderAll();updateRpPanel();notify('🗑','畫布已清空');markDirty();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  NOTIFICATION
+// ═══════════════════════════════════════════════════════════════
+let notifT=null;
+function notify(icon,msg){
+  document.getElementById('ni').textContent=icon;document.getElementById('nm').textContent=msg;
+  const n=document.getElementById('notif');n.classList.add('show');
+  if(notifT)clearTimeout(notifT);notifT=setTimeout(()=>n.classList.remove('show'),2400);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SIDEBAR / RIGHT PANEL TOGGLES
+// ═══════════════════════════════════════════════════════════════
+function toggleSb(){
+  const sb=document.getElementById('sb');const ov=document.getElementById('sb-overlay');
+  const open=sb.classList.toggle('open');ov.classList.toggle('on',open);
+}
+function closeSb(){document.getElementById('sb').classList.remove('open');document.getElementById('sb-overlay').classList.remove('on')}
+function toggleRp(){
+  const rp=document.getElementById('rp');const btn=document.getElementById('rp-show-btn');
+  if(window.innerWidth<=768){rp.classList.toggle('open');}
+  else {
+    const hidden=rp.classList.toggle('hidden');
+    if(btn)btn.textContent=hidden?'◀':'▶';
+    S._rpHidden=hidden;
+    const rpOpenBtn=document.getElementById('rp-open-btn');
+    if(rpOpenBtn)rpOpenBtn.style.display=hidden?'flex':'none';
+  }
+}
+function closeRp(){
+  const rp=document.getElementById('rp');const btn=document.getElementById('rp-show-btn');
+  if(window.innerWidth<=768)rp.classList.remove('open');
+  else {rp.classList.add('hidden');if(btn){btn.textContent='◀';}S._rpHidden=true;
+    const rpOpenBtn=document.getElementById('rp-open-btn');
+    if(rpOpenBtn)rpOpenBtn.style.display='flex';
+  }
+}
+function showRp(){
+  const rp=document.getElementById('rp');const btn=document.getElementById('rp-show-btn');
+  if(window.innerWidth<=768){rp.classList.add('open');}
+  else {rp.classList.remove('hidden');if(btn){btn.textContent='▶';}S._rpHidden=false;
+    const rpOpenBtn=document.getElementById('rp-open-btn');
+    if(rpOpenBtn)rpOpenBtn.style.display='none';
+  }
+}
+
+function showKbdHelp(){document.getElementById('kbd-help').classList.add('open')}
+
+function focusNodeSearch(){
+  // Switch to search tab in sidebar
+  const sb=document.getElementById('sb');
+  if(sb.classList.contains('collapsed'))showSbDesktop();
+  // activate search tab (index 2)
+  const tabs=document.querySelectorAll('.sb-tab');const panels=document.querySelectorAll('.sb-panel');
+  tabs.forEach(t=>t.classList.remove('act'));panels.forEach(p=>p.classList.remove('act'));
+  tabs[2].classList.add('act');document.getElementById('sbp-2').classList.add('act');
+  setTimeout(()=>document.getElementById('dev-search').focus(),100);
+}
+
+// Project name sync
+document.getElementById('proj-name').addEventListener('change',e=>{
+  const p=S.projects.find(x=>x.id===S.activeProj);
+  if(p)p.name=e.target.value;updateProjList();markDirty();
+});
+</script>
+</body>
+</html>
